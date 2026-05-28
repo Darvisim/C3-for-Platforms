@@ -40,7 +40,10 @@ jobs:
           git clone --depth 1 -b release/19.x https://github.com/llvm/llvm-project.git /tmp/llvm-project
           cd /tmp/llvm-project
 
-          sed -i '' 's|^test -z "$UNAME_SYSTEM" && UNAME_SYSTEM=.*|echo "x86_64-unknown-freebsd13.4"; exit 0;|g' llvm/cmake/config.guess
+          echo '#!/bin/sh' > llvm/cmake/config.guess
+          echo 'echo "x86_64-unknown-freebsd13.4"' >> llvm/cmake/config.guess
+          echo 'exit 0' >> llvm/cmake/config.guess
+          chmod +x llvm/cmake/config.guess
           
           cmake -S llvm -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
