@@ -42,6 +42,7 @@ jobs:
 
           echo 'echo x86_64-unknown-freebsd13.4' > /tmp/llvm-project/llvm/cmake/config.guess
           chmod +x /tmp/llvm-project/llvm/cmake/config.guess
+          sed -i.bak 's/#elif defined(__FreeBSD__)/#elif defined(__FreeBSD__) \&\& 0/' /tmp/llvm-project/llvm/lib/Support/Unix/Path.inc
           
           cmake -S llvm -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
