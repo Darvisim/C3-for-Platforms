@@ -44,6 +44,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DLLVM_ENABLE_PROJECTS="clang;lld" \
             -DLLVM_TARGETS_TO_BUILD="X86" \
+            -DHOST_TRIPLE="x86_64-unknown-freebsd13.4" \
             -DLLVM_HOST_TRIPLE="x86_64-unknown-freebsd13.4" \
             -DLLVM_DEFAULT_TARGET_TRIPLE="x86_64-unknown-freebsd13.4" \
             -DCMAKE_INSTALL_PREFIX=/usr/local/llvm19 \
