@@ -30,7 +30,6 @@ jobs:
           done
 
       - name: Build LLVM
-        shell: cpa.sh {0}
         run: |
           git clone --depth 1 -b release/19.x https://github.com/llvm/llvm-project.git /tmp/llvm-project
           cd /tmp/llvm-project
