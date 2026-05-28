@@ -30,20 +30,26 @@ jobs:
           done
 
       - name: Build LLVM
+        shell: cpa.sh {0}
         run: |
-          git clone --depth 1 -b release/19.x https://github.com/llvm/llvm-project.git /tmp/llvm-project
+          sudo truncate -s 4G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mdconfig -a -t vnode -f /swapfile -u 99
+          sudo swapon /dev/md99
+
+          git clone --depth 1 -b release/19.x https://github.com /tmp/llvm-project
           cd /tmp/llvm-project
-          mkdir build && cd build
-          cmake -G "Unix Makefiles" \
+
+          cmake -S llvm -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DLLVM_ENABLE_PROJECTS="clang;lld" \
             -DLLVM_TARGETS_TO_BUILD="X86" \
             -DLLVM_HOST_TRIPLE="x86_64-unknown-freebsd13.4" \
             -DLLVM_DEFAULT_TARGET_TRIPLE="x86_64-unknown-freebsd13.4" \
             -DCMAKE_INSTALL_PREFIX=/usr/local/llvm19 \
-            ../llvm
-          make -j$(sysctl -n hw.ncpu)
-          sudo make install
+            -DLLVM_PARALLEL_LINK_JOBS=1
+          cmake --build build -j 2
+          sudo cmake --install build
 
       - name: Checkout C3 Repository
         uses: actions/checkout@v6
@@ -74,13 +80,13 @@ jobs:
           ./c3c/scripts/tools/package_build.sh "./build-debug/c3c" "c3-midnightbsd-Debug" "tar"
 
       - name: Upload Artifacts (Release)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: c3-midnightbsd-Release
           path: c3-midnightbsd-Release.tar.gz
 
       - name: Upload Artifacts (Debug)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: c3-midnightbsd-Debug
           path: c3-midnightbsd-Debug.tar.gz
