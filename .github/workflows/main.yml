@@ -24,8 +24,8 @@ jobs:
       - name: Install Dependencies
         shell: cpa.sh {0}
         run: |
+          sudo mport index
           for i in 1 2; do
-            sudo mport index
             sudo mport install git ninja cmake curl bash && break || sleep 5
           done
 
