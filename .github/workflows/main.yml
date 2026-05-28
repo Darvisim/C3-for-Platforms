@@ -37,7 +37,7 @@ jobs:
           sudo mdconfig -a -t vnode -f /swapfile -u 99
           sudo swapon /dev/md99
 
-          git clone --depth 1 -b release/19.x https://github.com /tmp/llvm-project
+          git clone --depth 1 -b release/19.x https://github.com/llvm/llvm-project.git /tmp/llvm-project
           cd /tmp/llvm-project
 
           cmake -S llvm -B build -G Ninja \
