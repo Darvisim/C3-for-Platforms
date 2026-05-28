@@ -40,11 +40,12 @@ jobs:
           git clone --depth 1 -b release/19.x https://github.com/llvm/llvm-project.git /tmp/llvm-project
           cd /tmp/llvm-project
 
+          sed -i '' 's|^test -z "$UNAME_SYSTEM" && UNAME_SYSTEM=.*|echo "x86_64-unknown-freebsd13.4"; exit 0;|g' llvm/cmake/config.guess
+          
           cmake -S llvm -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DLLVM_ENABLE_PROJECTS="clang;lld" \
             -DLLVM_TARGETS_TO_BUILD="X86" \
-            -DHOST_TRIPLE="x86_64-unknown-freebsd13.4" \
             -DLLVM_HOST_TRIPLE="x86_64-unknown-freebsd13.4" \
             -DLLVM_DEFAULT_TARGET_TRIPLE="x86_64-unknown-freebsd13.4" \
             -DCMAKE_INSTALL_PREFIX=/usr/local/llvm19 \
