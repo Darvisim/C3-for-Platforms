@@ -26,9 +26,10 @@ jobs:
         run: |
           sudo mport index
           sudo mport install git ninja cmake curl bash && break || sleep 10
-          curl -s https://www.ravenports.com/repository/ravenports-downloader.sh | sudo sh
-          sudo /raven/sbin/ravensw index
-          sudo /raven/sbin/ravensw install lang/clang19
+          curl -s https://www.ravenports.com/repository/ravenports-downloader.sh -o /tmp/raven-setup.sh
+          sudo bash /tmp/raven-setup.sh
+          sudo /raven/sbin/rvn update
+          sudo /raven/sbin/rvn install lang/clang19
 
       - name: Checkout C3 Repository
         uses: actions/checkout@v6
