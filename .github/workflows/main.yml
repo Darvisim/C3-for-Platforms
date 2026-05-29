@@ -29,51 +29,8 @@ jobs:
             sudo mport install git ninja cmake curl bash ccache && break || sleep 10
           done
 
-      - name: Setup GitHub Cache for ccache
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/.cache/ccache
-          key: ${{ runner.os }}-ccache-llvm19-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-ccache-llvm19-
-
-      - name: Build LLVM
-        shell: cpa.sh {0}
-        run: |
-          sudo truncate -s 4G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mdconfig -a -t vnode -f /swapfile -u 99
-          sudo swapon /dev/md99
-
-          export CCACHE_DIR="/home/runner/.cache/ccache"
-          ccache -M 2G
-          ccache -s
-          
-          git clone --depth 1 -b release/19.x https://github.com/llvm/llvm-project.git /tmp/llvm-project
-          cd /tmp/llvm-project
-
-          echo 'echo x86_64-unknown-freebsd13.4' > /tmp/llvm-project/llvm/cmake/config.guess
-          chmod +x /tmp/llvm-project/llvm/cmake/config.guess
-          sed -i.bak 's/#elif defined(__FreeBSD__)/#elif defined(__FreeBSD__) \&\& 0/' /tmp/llvm-project/llvm/lib/Support/Unix/Path.inc
-          sed -i.bak '/#if defined(__FreeBSD__)/a \
-          extern "C" char **environ;
-          ' /tmp/llvm-project/llvm/lib/Support/Unix/Program.inc
-          
-          cmake -S llvm -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DLLVM_ENABLE_PROJECTS="clang;lld" \
-            -DLLVM_TARGETS_TO_BUILD="X86" \
-            -DLLVM_HOST_TRIPLE="x86_64-unknown-freebsd13.4" \
-            -DLLVM_DEFAULT_TARGET_TRIPLE="x86_64-unknown-freebsd13.4" \
-            -DCMAKE_INSTALL_PREFIX=/usr/local/llvm19 \
-            -DLLVM_PARALLEL_LINK_JOBS=1 \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-
-          cmake --build build -j 4
-          sudo cmake --install build
-          
-          ccache -s
+          sudo /raven/sbin/ravensw index
+          sudo /raven/sbin/ravensw install lang/clang19
 
       - name: Checkout C3 Repository
         uses: actions/checkout@v6
@@ -84,13 +41,15 @@ jobs:
       - name: Build (Release)
         shell: cpa.sh {0}
         run: |
-          cmake -S c3c -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release
+          export PATH="/raven/bin:/raven/sbin:$PATH"
+          cmake -S c3c -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="/raven"
           cmake --build build-release
 
       - name: Build (Debug)
         shell: cpa.sh {0}
         run: |
-          cmake -S c3c -B build-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
+          export PATH="/raven/bin:/raven/sbin:$PATH"
+          cmake -S c3c -B build-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="/raven"
           cmake --build build-debug
 
       - name: Run Tests
