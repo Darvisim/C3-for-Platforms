@@ -25,10 +25,8 @@ jobs:
         shell: cpa.sh {0}
         run: |
           sudo mport index
-          for i in 1 2; do
-            sudo mport install git ninja cmake curl bash && break || sleep 10
-          done
-
+          sudo mport install git ninja cmake curl bash && break || sleep 10
+          curl -s https://www.ravenports.com/repository/ravenports-downloader.sh | sudo sh
           sudo /raven/sbin/ravensw index
           sudo /raven/sbin/ravensw install lang/clang19
 
