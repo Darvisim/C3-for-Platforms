@@ -26,34 +26,16 @@ jobs:
         run: |
           sudo mport index
           for i in 1 2; do
-            sudo mport install git ninja cmake curl bash && break || sleep 10
+            sudo mport install git ninja cmake curl bash llvm19 && break || sleep 10
           done
 
-      - name: Build LLVM
+      - name: Prepare LLVM Environment Links
         shell: cpa.sh {0}
         run: |
-          sudo truncate -s 4G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mdconfig -a -t vnode -f /swapfile -u 99
-          sudo swapon /dev/md99
-
-          git clone --depth 1 -b release/19.x https://github.com/llvm/llvm-project.git /tmp/llvm-project
-          cd /tmp/llvm-project
-
-          echo 'echo x86_64-unknown-freebsd13.4' > /tmp/llvm-project/llvm/cmake/config.guess
-          chmod +x /tmp/llvm-project/llvm/cmake/config.guess
-          sed -i.bak 's/#elif defined(__FreeBSD__)/#elif defined(__FreeBSD__) \&\& 0/' /tmp/llvm-project/llvm/lib/Support/Unix/Path.inc
-          
-          cmake -S llvm -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DLLVM_ENABLE_PROJECTS="clang;lld" \
-            -DLLVM_TARGETS_TO_BUILD="X86" \
-            -DLLVM_HOST_TRIPLE="x86_64-unknown-freebsd13.4" \
-            -DLLVM_DEFAULT_TARGET_TRIPLE="x86_64-unknown-freebsd13.4" \
-            -DCMAKE_INSTALL_PREFIX=/usr/local/llvm19 \
-            -DLLVM_PARALLEL_LINK_JOBS=1
-          cmake --build build -j 2
-          sudo cmake --install build
+          sudo mkdir -p /usr/local/llvm19
+          sudo ln -s /usr/local/llvm19/bin /usr/local/bin
+          sudo ln -s /usr/local/llvm19/include /usr/local/include
+          sudo ln -s /usr/local/llvm19/lib /usr/local/lib
 
       - name: Checkout C3 Repository
         uses: actions/checkout@v6
