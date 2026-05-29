@@ -1,4 +1,4 @@
-name: MidnightBSD C3
+name: MidnightBSD C3 Test
 on:
   workflow_dispatch:
   
