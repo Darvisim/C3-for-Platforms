@@ -1,0 +1,76 @@
+name: MidnightBSD C3
+on:
+  workflow_dispatch:
+  
+jobs:
+  build-midnightbsd:
+    name: MidnightBSD (x64) ${{ matrix.version }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ['4.0.4']
+    steps:
+      - uses: actions/checkout@v6
+
+      # STEP 1: Download the artifact on the host Ubuntu runner using GitHub CLI
+      # This handles cross-repo access properly without broken URLs
+      - name: Fetch FreeBSD C3 Artifact from External Repo
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p c3-artifact
+          gh run download 26011424603 \
+            --repo Darvisim/c3c \
+            --dir c3-artifact \
+            || echo "Warning: Artifact may have expired after 90 days!"
+
+      # STEP 2: Start your MidnightBSD Virtual Machine
+      - name: Setup MidnightBSD VM
+        uses: cross-platform-actions/action@master
+        with:
+          operating_system: midnightbsd
+          version: ${{ matrix.version }}
+          cpu_count: 4
+          memory: 6G
+
+      # STEP 3: Configure minimal internal VM utilities
+      - name: Install Dependencies
+        shell: cpa.sh {0}
+        run: |
+          sudo mport index
+          for i in 1 2; do
+            sudo mport install git curl bash && break || sleep 10
+          done
+
+      # STEP 4: Pull down the C3 repository specifically for its testing tools
+      - name: Checkout C3 Repository
+        uses: actions/checkout@v6
+        with:
+          repository: c3lang/c3c
+          path: c3c
+
+      # STEP 5: Locate and unpack the downloaded binary inside the VM environment
+      - name: Extract FreeBSD Binary
+        shell: cpa.sh {0}
+        run: |
+          # Check what was downloaded into the shared workspace directory
+          ls -la ./c3-artifact/
+          
+          # Unpack inner archives if package_build.sh format was used
+          if [ -f "./c3-artifact/c3-freebsd-Debug.tar.gz" ]; then
+            tar -xzf ./c3-artifact/c3-freebsd-Debug.tar.gz -C ./c3-artifact/
+          elif [ -f "./c3-artifact/c3-freebsd-Release.tar.gz" ]; then
+            tar -xzf ./c3-artifact/c3-freebsd-Release.tar.gz -C ./c3-artifact/
+          fi
+
+      # STEP 6: Execute the target test suites using the extracted executable
+      - name: Run Tests
+        shell: cpa.sh {0}
+        run: |
+          # Find the exact path of the executable file named 'c3c'
+          BINARY_PATH=$(find ./c3-artifact -name "c3c" -type f | head -n 1)
+          chmod +x "$BINARY_PATH"
+          
+          # Launch tests using the FreeBSD-compiled binary asset
+          ./c3c/scripts/tools/ci_tests.sh "$BINARY_PATH"
