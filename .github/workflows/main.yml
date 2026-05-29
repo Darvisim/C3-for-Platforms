@@ -25,6 +25,7 @@ jobs:
         shell: cpa.sh {0}
         run: |
           sudo mport index
+          sudo FETCH_ARGS="-c -k" mport install ca_root_nss
           sudo mport install git ninja cmake curl bash && break || sleep 10
           curl -s https://www.ravenports.com/repository/ravenports-downloader.sh -o /tmp/raven-setup.sh
           sudo bash /tmp/raven-setup.sh
