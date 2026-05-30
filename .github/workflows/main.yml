@@ -25,11 +25,13 @@ jobs:
         shell: cpa.sh {0}
         run: |
           sudo mport index
-          sudo FETCH_ARGS="-c -k" mport install ca_root_nss || true
-          sudo mport install git ninja cmake curl bash && break || sleep 10
-          curl -s -k https://www.ravenports.com/repository/ravenports-downloader.sh -o /tmp/raven-setup.sh
-          sudo bash /tmp/raven-setup.sh
-          sudo /raven/sbin/rvn install llvm20:std
+          for i in 1 2; do
+            sudo mport install git ninja cmake curl bash && break || sleep 10
+          done
+          
+          curl -L -k "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/clang+llvm-19.1.7-x86_64-unknown-freebsd13.tar.xz" -o /tmp/llvm19.tar.xz
+          sudo mkdir -p /usr/local/llvm19
+          sudo tar -xf /tmp/llvm19.tar.xz -C /usr/local/llvm19 --strip-components=1
 
       - name: Checkout C3 Repository
         uses: actions/checkout@v6
@@ -40,15 +42,15 @@ jobs:
       - name: Build (Release)
         shell: cpa.sh {0}
         run: |
-          export PATH="/raven/bin:/raven/sbin:$PATH"
-          cmake -S c3c -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="/raven"
+          export PATH="/usr/local/llvm19/bin:$PATH"
+          cmake -S c3c -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="/usr/local/llvm19"
           cmake --build build-release
 
       - name: Build (Debug)
         shell: cpa.sh {0}
         run: |
           export PATH="/raven/bin:/raven/sbin:$PATH"
-          cmake -S c3c -B build-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="/raven"
+          cmake -S c3c -B build-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="/usr/local/llvm19"
           cmake --build build-debug
 
       - name: Run Tests
