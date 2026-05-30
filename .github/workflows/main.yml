@@ -29,7 +29,7 @@ jobs:
           sudo mport install git ninja cmake curl bash && break || sleep 10
           curl -s -k https://www.ravenports.com/repository/ravenports-downloader.sh -o /tmp/raven-setup.sh
           sudo bash /tmp/raven-setup.sh
-          sudo /raven/sbin/rvn install llvm20:primary:std
+          sudo /raven/sbin/rvn install llvm20-primary
 
       - name: Checkout C3 Repository
         uses: actions/checkout@v6
