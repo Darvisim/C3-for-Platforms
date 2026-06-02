@@ -25,6 +25,7 @@ jobs:
         shell: cpa.sh {0}
         run: |
           sudo mport index
+          sudo mport upgrade
           sudo mport install git ninja cmake llvm19 curl bash && break || sleep 10
 
       - name: Checkout C3 Repository
