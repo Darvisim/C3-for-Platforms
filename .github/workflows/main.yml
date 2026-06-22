@@ -79,7 +79,7 @@ jobs:
           - architecture: aarch64
             runner: ubuntu-24.04-arm
           - architecture: x86_64
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v6
@@ -95,28 +95,32 @@ jobs:
         with:
           envs: 'BUILD_TYPE'
           run: |
-            # 1. Update packages inside the VM
-            pkg update -y
-            pkg upgrade -y
+            # 1. Map Termux environmental prefix paths and prioritize its binaries
+            export PREFIX="/data/data/com.termux/files/usr"
+            export PATH="${PREFIX}/bin:/system/bin:/system/xbin"
             
-            # 2. Install build requirements natively
-            pkg install -y llvm binutils libgc build-essential cmake git libedit zlib clang make mlir llvm-tools libpolly python libllvm-static
+            # 2. Update packages inside the VM via explicit Termux bin calls
+            ${PREFIX}/bin/pkg update -y
+            ${PREFIX}/bin/pkg upgrade -y
             
-            # 3. Compile the Release version
-            cmake -S c3c -B build-release -DCMAKE_BUILD_TYPE=Release
-            cmake --build build-release
+            # 3. Install build requirements natively
+            ${PREFIX}/bin/pkg install -y llvm binutils libgc build-essential cmake git libedit zlib clang make mlir llvm-tools libpolly python libllvm-static
             
-            # 4. Package Release
+            # 4. Compile the Release version (Using Termux's native CMake)
+            ${PREFIX}/bin/cmake -S c3c -B build-release -DCMAKE_BUILD_TYPE=Release
+            ${PREFIX}/bin/cmake --build build-release
+            
+            # 5. Package Release
             chmod +x ./c3c/scripts/tools/package_build.sh
-            bash ./c3c/scripts/tools/package_build.sh "./build-release/c3c" "c3-android-${{ matrix.architecture }}-Release" "tar"
+            /system/bin/sh ./c3c/scripts/tools/package_build.sh "./build-release/c3c" "c3-android-${{ matrix.architecture }}-Release" "tar"
             
-            # 5. Compile and Test the Debug version
-            cmake -S c3c -B build-debug -DCMAKE_BUILD_TYPE=Debug
-            cmake --build build-debug
-            bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c" "android"
+            # 6. Compile and Test the Debug version
+            ${PREFIX}/bin/cmake -S c3c -B build-debug -DCMAKE_BUILD_TYPE=Debug
+            ${PREFIX}/bin/cmake --build build-debug
+            /system/bin/sh ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c" "android"
             
-            # 6. Package Debug
-            bash ./c3c/scripts/tools/package_build.sh "./build-debug/c3c" "c3-android-${{ matrix.architecture }}-Debug" "tar"
+            # 7. Package Debug
+            /system/bin/sh ./c3c/scripts/tools/package_build.sh "./build-debug/c3c" "c3-android-${{ matrix.architecture }}-Debug" "tar"
 
       - name: Upload Artifacts (Release)
         uses: actions/upload-artifact@v7
@@ -129,4 +133,5 @@ jobs:
         with:
           name: c3-android-${{ matrix.architecture }}-Debug
           path: c3-android-${{ matrix.architecture }}-Debug.tar.gz
+
 
