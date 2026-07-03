@@ -8,23 +8,38 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       image: mcr.microsoft.com/azurelinux-beta/base/core:4.0
+    strategy:
+      fail-fast: false
     steps: 
-      - name: Bootstrap System Dependencies
+      - name: Bootstrap Core System Dependencies
         run: |
           dnf check-update || true
-          dnf install -y tar git shadow-utils
+          dnf install -y git tar shadow-utils
         
       - uses: actions/checkout@v6
   
-      - name: Install Runtime Dependencies
+      - name: Install Development Build Tools
         run: |
           dnf check-update || true
-          dnf install -y gcc make
-  
-      - name: Test
+          dnf install -y cmake clang libcurl-devel make ninja-build
+          
+      - name: Clone C3 Compiler Source
         run: |
-          echo "Running tests on Azure Linux 4.0..."
-          gcc --version
+          git clone --depth=1 https://github.com/c3lang/c3c
+          
+      - name: Build CMake (Release)
+        run: |
+          cmake -S c3c -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DC3_FETCH_LLVM=ON
+          cmake --build build-release
+  
+      - name: Build CMake (Debug)
+        run: |
+          cmake -S c3c -B build-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DC3_FETCH_LLVM=ON
+          cmake --build build-debug
+  
+      - name: Run Unified Tests
+        run: |
+          ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
           
           
 
