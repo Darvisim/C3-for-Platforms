@@ -21,7 +21,9 @@ jobs:
       - name: Install Development Build Tools
         run: |
           dnf check-update || true
-          dnf install -y cmake clang libcurl-devel make ninja-build zstd libzstd-devel
+          dnf install -y cmake clang libcurl-devel make ninja-build zstd libzstd-devel \
+                       libX11-devel libXrandr-devel libXinerama-devel libXi-devel \
+                       libXxf86vm-devel libXcursor-devel
           
       - name: Clone C3 Compiler Source
         run: |
