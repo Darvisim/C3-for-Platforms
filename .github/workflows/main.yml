@@ -8,19 +8,22 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       image: mcr.microsoft.com/azurelinux-beta/base/core:4.0
-    steps:
+    steps: 
+      - name: Bootstrap System Dependencies
+        run: |
+          dnf check-update || true
+          dnf install -y tar git shadow-utils
+        
       - uses: actions/checkout@v6
   
       - name: Install Runtime Dependencies
         run: |
-          # Azure Linux 4.0 uses standard dnf instead of tdnf
           dnf check-update || true
-          dnf install -y shadow-utils gcc make tar
+          dnf install -y gcc make
   
       - name: Test
         run: |
           echo "Running tests on Azure Linux 4.0..."
-          # Insert your primary testing command below (e.g., make test, npm test, pytest)
           gcc --version
           
           
