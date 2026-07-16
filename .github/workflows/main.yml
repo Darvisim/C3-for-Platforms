@@ -35,25 +35,30 @@ jobs:
             pkg install -y llvm binutils libgc build-essential cmake git libedit zlib clang make mlir llvm-tools libpolly python libllvm-static
             
       - name: Build CMake (Release)
+        shell: termux {0}
         run: |
             cmake -S c3c -B build-release -DCMAKE_BUILD_TYPE=Release
             cmake --build build-release
             
       - name: Package artifacts (Release)
+        shell: termux {0}
         run: |
             chmod +x ./c3c/scripts/tools/package_build.sh
             bash ./c3c/scripts/tools/package_build.sh "./build-release/c3c" "c3-android-${{ matrix.architecture }}-Release" "tar"
             
       - name: Build CMake (Debug)
+        shell: termux {0}
         run: |
             cmake -S c3c -B build-debug -DCMAKE_BUILD_TYPE=Debug
             cmake --build build-debug
             
       - name: Run Unified Tests
+        shell: termux {0}
         run: |
             bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c" "android"
 
       - name: Package Artifacts (Debug)
+        shell: termux {0}
         run: |
             chmod +x ./c3c/scripts/tools/package_build.sh
             bash ./c3c/scripts/tools/package_build.sh "./build-debug/c3c" "c3-android-${{ matrix.architecture }}-Debug" "tar"
