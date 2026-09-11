@@ -22,7 +22,7 @@ jobs:
            -DCMAKE_SYSTEM_NAME=iOS \
            -DCMAKE_OSX_ARCHITECTURES=arm64 \
            -DCMAKE_BUILD_TYPE=Release \
-           -DC3_FETCH_LLVM=ON
+           -DC3_FETCH_LLVM=OFF
 
           cmake --build build-release --config Release
           
@@ -32,6 +32,6 @@ jobs:
              -DCMAKE_SYSTEM_NAME=iOS \
              -DCMAKE_OSX_ARCHITECTURES=arm64 \
              -DCMAKE_BUILD_TYPE=Debug \
-             -DC3_FETCH_LLVM=ON
+             -DC3_FETCH_LLVM=OFF
 
             cmake --build build-debug --config Debug
