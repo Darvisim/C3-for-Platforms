@@ -16,22 +16,19 @@ jobs:
           repository: c3lang/c3c
           path: c3c
           
-      - name: Build CMake (Release)
+      test-ios:
+    name: iOS (aarch64)
+    needs: changes
+    if: needs.changes.outputs.src == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      
+      - name: CMake Build
         run: |
-          cmake -S c3c -B build-release -G Xcode \
-           -DCMAKE_SYSTEM_NAME=iOS \
-           -DCMAKE_OSX_ARCHITECTURES=arm64 \
-           -DCMAKE_BUILD_TYPE=Release \
-           -DC3_FETCH_LLVM=OFF
-
-          cmake --build build-release --config Release
-          
-      - name: Build CMake (Debug)
-        run: |
-            cmake -S c3c -B build-debug -G Xcode \
-             -DCMAKE_SYSTEM_NAME=iOS \
-             -DCMAKE_OSX_ARCHITECTURES=arm64 \
-             -DCMAKE_BUILD_TYPE=Debug \
-             -DC3_FETCH_LLVM=OFF
-
-            cmake --build build-debug --config Debug
+          cmake -B build-debug -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DC3_FETCH_LLVM=ON \
+            -DCMAKE_C_COMPILER=$(xcrun —sdk iphoneos —find clang) \
+            -DCMAKE_CXX_COMPILER=$(xcrun —sdk iphoneos —find clang++)
+          cmake --build build-debug --verbose
