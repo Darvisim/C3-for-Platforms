@@ -24,3 +24,6 @@ jobs:
             -DCMAKE_C_COMPILER=$(xcrun --sdk iphoneos --find clang) \
             -DCMAKE_CXX_COMPILER=$(xcrun --sdk iphoneos --find clang++)
           cmake --build build-debug --verbose
+
+      - name: Check C3 Version
+        run: c3c --version
