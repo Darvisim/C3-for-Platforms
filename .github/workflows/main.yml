@@ -15,18 +15,10 @@ jobs:
         with:
           repository: c3lang/c3c
           path: c3c
-          
-      test-ios:
-    name: iOS (aarch64)
-    needs: changes
-    if: needs.changes.outputs.src == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v7
       
       - name: CMake Build
         run: |
-          cmake -B build-debug -G Ninja \
+          cmake -S c3c -B build-debug -G Ninja \
             -DCMAKE_BUILD_TYPE=Debug \
             -DC3_FETCH_LLVM=ON \
             -DCMAKE_C_COMPILER=$(xcrun —sdk iphoneos —find clang) \
