@@ -26,4 +26,4 @@ jobs:
           cmake --build build-debug --verbose
 
       - name: Check C3 Version
-        run: c3c --version
+        run: build-debug/c3c --version
