@@ -13,8 +13,9 @@ jobs:
       - name: Checkout C3 Repository
         uses: actions/checkout@v6
         with:
-          repository: c3lang/c3c
+          repository: Darvisim/c3c
           path: c3c
+          ref: ios
       
       - name: CMake Build
         run: |
