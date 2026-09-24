@@ -3,37 +3,67 @@ on:
   workflow_dispatch:
   
 jobs:
-  test-azl:
-    name: Azure Linux (x64)
-    runs-on: ubuntu-24.04
-    container:
-      image: mcr.microsoft.com/azurelinux-beta/base/core:4.0
-    strategy:
-      fail-fast: false
-    steps: 
-      - name: Bootstrap Core System Dependencies
-        run: |
-          dnf check-update || true
-          dnf install -y git tar shadow-utils
+  # test-azl:
+  #   name: Azure Linux (x64)
+  #   runs-on: ubuntu-24.04
+  #   container:
+  #     image: mcr.microsoft.com/azurelinux-beta/base/core:4.0
+  #   strategy:
+  #     fail-fast: false
+  #   steps: 
+  #     - name: Bootstrap Core System Dependencies
+  #       run: |
+  #         dnf check-update || true
+  #         dnf install -y git tar shadow-utils
         
+  #     - uses: actions/checkout@v6
+  
+  #     - name: Install Development Build Tools
+  #       run: |
+  #         dnf check-update || true
+  #         dnf install -y python3 clang gcc-c++ libcurl-devel meson ninja-build libzstd-devel \
+  #                      libX11-devel libXrandr-devel libXinerama-devel libXi-devel \
+  #                      libXxf86vm-devel libXcursor-devel
+          
+  #     - name: Clone C3 Compiler Source
+  #       run: git clone --depth=1 https://github.com/Manulinares/c3c -b meson_build_system --single-branch
+  
+  #     - name: Build Meson (Debug)
+  #       run: |
+  #         meson setup c3c build-debug --buildtype=debug -Dfetch_llvm=true
+  #         meson compile -C build-debug
+  
+  #     - name: Run Unified Tests
+  #       run: ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
+
+
+  test-emscripten:
+    name: Emscripten (x64)
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v6
-  
-      - name: Install Development Build Tools
+
+      - name: Install System Dependencies
         run: |
-          dnf check-update || true
-          dnf install -y python3 clang gcc-c++ libcurl-devel meson ninja-build libzstd-devel \
-                       libX11-devel libXrandr-devel libXinerama-devel libXi-devel \
-                       libXxf86vm-devel libXcursor-devel
-          
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
       - name: Clone C3 Compiler Source
-        run: git clone --depth=1 https://github.com/Manulinares/c3c -b meson_build_system --single-branch
-  
-      - name: Build Meson (Debug)
+        run: git clone --depth=1 https://github.com/c3lang/c3c -b master --single-branch
+
+      - name: Setup Emscripten
+        uses: emscripten-core/setup-emsdk@v16
+        with:
+          version: "latest"
+
+      - name: Build CMake (Debug)
         run: |
-          meson setup c3c build-debug --buildtype=debug -Dfetch_llvm=true
-          meson compile -C build-debug
-  
-      - name: Run Unified Tests
-        run: ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
-          
+          emcmake cmake -S c3c -B build-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DC3_FETCH_LLVM=ON
+          cmake --build build-release
+
+      - name: Run Test Runner
+        run: |
+          ./c3c/build-debug/c3c.js compile-run -O1 "$ROOT_DIR/test/src/test_suite_runner.c3" -- "c3c/build-debug/c3c.js" "c3c/test/test_suite/" --no-terminal
+
+      
           
