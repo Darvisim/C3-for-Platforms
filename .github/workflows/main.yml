@@ -61,7 +61,8 @@ jobs:
           emcmake cmake -S c3c -B build-debug -G Ninja \
             -DCMAKE_BUILD_TYPE=Debug \
             -DC3_FETCH_LLVM=ON \
-            -DC3_WITH_LLVM=ON
+            -DC3_WITH_LLVM=ON \
+            -DC3_LINK_DYNAMIC=OFF
           cmake --build build-release
 
       - name: Run Test Runner
