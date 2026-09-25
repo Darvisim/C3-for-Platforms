@@ -49,7 +49,7 @@ jobs:
           sudo apt-get install -y ninja-build
 
       - name: Clone C3 Compiler Source
-        run: git clone --depth=1 https://github.com/c3lang/c3c -b master --single-branch
+        run: git clone --depth=1 https://github.com/c3lang/c3c
 
       - name: Setup Emscripten
         uses: emscripten-core/setup-emsdk@v16
@@ -74,8 +74,6 @@ jobs:
       - name: Run Unified Tests
         run: |
           # ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
-          ls -l c3c/examples/args.c3
-          node -e "console.log(require('fs').existsSync('c3c/examples/args.c3'))"
           node ./build-debug/c3c.js compile-run c3c/examples/args.c3 --target emscripten -o args.js -- foo -bar 'baz baz'
 
       
