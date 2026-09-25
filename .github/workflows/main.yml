@@ -65,8 +65,9 @@ jobs:
             -DCMAKE_BUILD_TYPE=Debug \
             -DC3_FETCH_LLVM=ON \
             -DC3_WITH_LLVM=ON \
-            -DC3_LINK_DYNAMIC=OFF
-          cmake --build build-release
+            -DC3_LINK_DYNAMIC=OFF \
+            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH
+          cmake --build build-debug
 
       - name: Run Test Runner
         run: |
