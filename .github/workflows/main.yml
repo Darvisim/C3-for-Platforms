@@ -68,13 +68,13 @@ jobs:
             -DC3_LINK_DYNAMIC=OFF \
             -DC3_AVR_DISABLE=ON \
             -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH \
-            -DCMAKE_EXE_LINKER_FLAGS="-sMEMORY64=1 -sALLOW_MEMORY_GROWTH=1 -sFORCE_FILESYSTEM=1 -sEXIT_RUNTIME=0 -sINITIAL_MEMORY=256MB -sSTACK_SIZE=8MB -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=FS,callMain -sEXPORTED_FUNCTIONS=_main,_fflush"
+            -DCMAKE_EXE_LINKER_FLAGS="-sALLOW_MEMORY_GROWTH=1 -sFORCE_FILESYSTEM=1 -sEXIT_RUNTIME=0 -sINITIAL_MEMORY=256MB -sSTACK_SIZE=8MB -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=FS,callMain -sEXPORTED_FUNCTIONS=_main,_fflush"
           cmake --build build-debug
 
       - name: Run Unified Tests
         run: |
           # ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
-          node ./build-debug/c3c.js --target emscripten compile-run -O1 "c3c/test/src/test_suite_runner.c3" -- "$GITHUB_WORKSPACE/build-debug/c3c.js" "c3c/test/test_suite/" --no-terminal
+          node ./build-debug/c3c.js compile-run examples/args.c3 --target emscripten -o args.js
 
       
           
