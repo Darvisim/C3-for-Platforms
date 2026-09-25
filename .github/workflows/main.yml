@@ -71,9 +71,10 @@ jobs:
             -DCMAKE_EXE_LINKER_FLAGS="-sALLOW_MEMORY_GROWTH=1 -sFORCE_FILESYSTEM=1 -sEXIT_RUNTIME=0 -sINITIAL_MEMORY=256MB -sSTACK_SIZE=8MB -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=FS,callMain -sEXPORTED_FUNCTIONS=_main,_fflush"
           cmake --build build-debug
 
-      - name: Run Test Runner
+      - name: Run Unified Tests
         run: |
-          ./c3c/build-debug/c3c.js compile-run -O1 "$ROOT_DIR/test/src/test_suite_runner.c3" -- "c3c/build-debug/c3c.js" "c3c/test/test_suite/" --no-terminal
+          ./scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
+          # ./c3c/build-debug/c3c.js compile-run -O1 "$ROOT_DIR/test/src/test_suite_runner.c3" -- "c3c/build-debug/c3c.js" "c3c/test/test_suite/" --no-terminal
 
       
           
