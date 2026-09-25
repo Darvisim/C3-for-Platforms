@@ -73,8 +73,8 @@ jobs:
 
       - name: Run Unified Tests
         run: |
-          ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
-          # ./c3c/build-debug/c3c.js compile-run -O1 "$ROOT_DIR/test/src/test_suite_runner.c3" -- "c3c/build-debug/c3c.js" "c3c/test/test_suite/" --no-terminal
+          # ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
+          ./build-debug/c3c.js compile-run -O1 "c3c/test/src/test_suite_runner.c3" -- "$GITHUB_WORKSPACE/build-debug/c3c.js" "c3c/test/test_suite/" --no-terminal
 
       
           
