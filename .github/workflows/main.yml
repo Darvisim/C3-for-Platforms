@@ -74,7 +74,7 @@ jobs:
       - name: Run Unified Tests
         run: |
           # ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
-          node ./build-debug/c3c.js compile c3c/examples/args.c3 --target emscripten -o args.js
+          node --max-old-space-size=4096 ./build-debug/c3c.js compile-run c3c/examples/args.c3 --target emscripten -o args.js -- foo -bar 'baz baz'
 
       
           
