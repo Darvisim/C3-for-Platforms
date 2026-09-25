@@ -73,8 +73,8 @@ jobs:
 
       - name: Run Unified Tests
         run: |
-          node ./build-debug/c3c.js --version
           cp build-debug/c3c.data .
+          node ./build-debug/c3c.js --version
           # ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
           node ./build-debug/c3c.js compile-run --run-dir "$GITHUB_WORKSPACE/c3c" "$GITHUB_WORKSPACE/c3c/examples/args.c3" --target emscripten -o args.js -- foo -bar 'baz baz'
 
