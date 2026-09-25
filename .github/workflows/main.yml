@@ -56,6 +56,9 @@ jobs:
         with:
           version: "latest"
 
+      - name: Build static archives
+        run: embuilder build libc libdlmalloc libstubs libsockets libclang_rt.builtins
+
       - name: Build CMake (Debug)
         run: |
           emcmake cmake -S c3c -B build-debug -G Ninja \
