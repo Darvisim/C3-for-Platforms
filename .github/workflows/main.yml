@@ -73,10 +73,8 @@ jobs:
 
       - name: Run Unified Tests
         run: |
-          node ./build-debug/c3c.js --version
-          # ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
-          node ./build-debug/c3c.js compile --stdlib "$GITHUB_WORKSPACE/c3c/lib" --linker=cc --cc emcc "$GITHUB_WORKSPACE/c3c/resources/examples/args.c3" --target emscripten -o args.js
-          node args.js -- foo -bar 'baz baz'
+          node ./build-debug/c3c.js compile -O1 --stdlib "$GITHUB_WORKSPACE/c3c/lib" "$GITHUB_WORKSPACE/c3c/test/src/test_suite_runner.c3" --target emscripten -o test_suite_runner.js
+          node test_suite_runner.js -- "$GITHUB_WORKSPACE/build-debug/c3c.js" "$GITHUB_WORKSPACE/c3c/test/test_suite/" --no-terminal
 
       
           
