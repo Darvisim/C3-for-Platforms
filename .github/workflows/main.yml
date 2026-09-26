@@ -75,7 +75,7 @@ jobs:
       - name: Run Unified Tests
         run: |
           echo "--- Running Unit Tests ---"
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile-test "$GITHUB_WORKSPACE/c3c/test/unit" -O1 -D SLOW_TESTS --supress-run --target emscripten -o unit_tests.js
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" --supress-run compile-test "$GITHUB_WORKSPACE/c3c/test/unit" -O1 -D SLOW_TESTS --target emscripten -o unit_tests.js
           node unit_tests.js
 
           echo "--- Running Examples ---"
