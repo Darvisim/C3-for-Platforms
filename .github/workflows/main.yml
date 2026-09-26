@@ -69,13 +69,13 @@ jobs:
             -DC3_LINK_DYNAMIC=OFF \
             -DC3_AVR_DISABLE=ON \
             -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH \
-            -DCMAKE_EXE_LINKER_FLAGS="-sALLOW_MEMORY_GROWTH=1 -sNODERAWFS=1 -sEXIT_RUNTIME=0 -sINITIAL_MEMORY=256MB -sMAXIMUM_MEMORY=8GB -sSTACK_SIZE=8MB -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=FS,callMain -sEXPORTED_FUNCTIONS=_main,_fflush"
+            -DCMAKE_EXE_LINKER_FLAGS="-sALLOW_MEMORY_GROWTH=1 -sNODERAWFS=1 -sEXIT_RUNTIME=0 -sINITIAL_MEMORY=256MB -sMAXIMUM_MEMORY=4GB -sSTACK_SIZE=8MB -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=FS,callMain -sEXPORTED_FUNCTIONS=_main,_fflush"
           cmake --build build-debug
 
       - name: Run Unified Tests
         run: |
           echo "--- Running Unit Tests ---"
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile-test "$GITHUB_WORKSPACE/c3c/test/unit" -O1 -D SLOW_TESTS --target emscripten -o unit_tests.js
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile-test "$GITHUB_WORKSPACE/c3c/test/unit" -O1 --target emscripten -o unit_tests.js
           node unit_tests.js
 
           echo "--- Running Examples ---"
