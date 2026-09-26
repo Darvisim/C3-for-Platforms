@@ -74,9 +74,10 @@ jobs:
       - name: Run Unified Tests
         run: |
           cp build-debug/c3c.data .
-          node ./build-debug/c3c.js --version
+          chmod +x ./build-debug/c3c.js
+          ./build-debug/c3c.js --version
           # ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
-          node ./build-debug/c3c.js compile-run --stdlib /usr/lib/c3 /usr/share/c3/examples/args.c3 --linker=builtin --target emscripten -o args.js -- foo -bar 'baz baz'
+          ./build-debug/c3c.js compile-run --stdlib /usr/lib/c3 /usr/share/c3/examples/args.c3 --linker=builtin --target emscripten -o args.js -- foo -bar 'baz baz'
 
       
           
