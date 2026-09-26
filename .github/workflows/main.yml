@@ -73,11 +73,11 @@ jobs:
 
       - name: Run Unified Tests
         run: |
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" -vv dynamic-lib "$GITHUB_WORKSPACE/c3c/resources/examples/dynlib-test/add.c3" --no-entry --target emscripten -o add
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/dynlib-test/test.c3" --no-entry --target emscripten -o test.js
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" -vv --no-entry dynamic-lib "$GITHUB_WORKSPACE/c3c/resources/examples/dynlib-test/add.c3" --target emscripten -o add
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/dynlib-test/test.c3" --target emscripten -o test.js
           node test.js -L . -l add -z -Wl,-rpath=.
 
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" --no-entry -vv static-lib "$GITHUB_WORKSPACE/c3c/resources/examples/staticlib-test/add.c3" --no-entry --target emscripten -o libadd
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" -vv --no-entry static-lib "$GITHUB_WORKSPACE/c3c/resources/examples/staticlib-test/add.c3" --no-entry --target emscripten -o libadd
           node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/staticlib-test/test.c3" --no-entry --target emscripten -o test.js
           node test.js -L . -l add
           
