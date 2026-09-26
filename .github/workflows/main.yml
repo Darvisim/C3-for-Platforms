@@ -74,8 +74,7 @@ jobs:
       - name: Run Unified Tests
         run: |
           node ./build-debug/c3c.js compile -O1 --stdlib "$GITHUB_WORKSPACE/c3c/lib" "$GITHUB_WORKSPACE/c3c/test/src/test_suite_runner.c3" -z -sERROR_ON_UNDEFINED_SYMBOLS=0 --target emscripten -o test_suite_runner.js
-          export NODE_ARGS="-- $GITHUB_WORKSPACE/build-debug/c3c.js $GITHUB_WORKSPACE/c3c/test/test_suite/ --no-terminal"
-          node test_suite_runner.js
+          node -- test_suite_runner.js -- "$GITHUB_WORKSPACE/build-debug/c3c.js" "$GITHUB_WORKSPACE/c3c/test/test_suite/" --no-terminal
 
       
           
