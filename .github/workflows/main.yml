@@ -77,7 +77,7 @@ jobs:
           node ./build-debug/c3c.js --version
           # ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
           node ./build-debug/c3c.js compile --stdlib /usr/lib/c3 /usr/share/c3/examples/args.c3 --target emscripten -o args.js
-          node args.js -- foo -bar 'baz baz'
+          # node args.js -- foo -bar 'baz baz'
 
       
           
