@@ -76,7 +76,7 @@ jobs:
           cp build-debug/c3c.data .
           node ./build-debug/c3c.js --version
           # ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
-          node ./build-debug/c3c.js compile-run --stdlib /usr/lib/c3 /usr/share/c3/examples/args.c3 --target wasm32 -o args.wasm -- foo -bar 'baz baz'
+          node ./build-debug/c3c.js compile-run --stdlib /usr/lib/c3 /usr/share/c3/examples/args.c3 --no-entry --target wasm32 -o args.wasm -- foo -bar 'baz baz'
 
       
           
