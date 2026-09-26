@@ -89,7 +89,7 @@ jobs:
           node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/nbodies.c3" --target emscripten -o nbodies.js
           node nbodies.js 1000
           node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/plus_minus.c3" --target emscripten -o plus_minus.js
-          node plus_minus.js 10 + 20 - 5
+          echo "10 + 20 - 5" | node plus_minus.js
           node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/fasta.c3" --target emscripten -o fasta.js
           node fasta.js 100
           node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/args.c3" --target emscripten -o args.js
