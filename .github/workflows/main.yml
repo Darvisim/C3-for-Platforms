@@ -83,7 +83,7 @@ jobs:
           node test.js -L . -l add -z -Wl,-rpath=.
 
           node ./build-debug/c3c.js -vv static-lib "$GITHUB_WORKSPACE/c3c/resources/examples/staticlib-test/add.c3" -o libadd
-          node ./build-debug/c3c.js compile "$ROOT_DIR/resources/examples/staticlib-test/test.c3" -o test.js
+          node ./build-debug/c3c.js compile "$GITHUB_WORKSPACE/resources/examples/staticlib-test/test.c3" -o test.js
           node test.js -L . -l add
           
 
