@@ -73,27 +73,22 @@ jobs:
 
       - name: Run Unified Tests
         run: |
-          node ./build-debug/c3c.js compile -O1 --stdlib "$GITHUB_WORKSPACE/c3c/lib" "$GITHUB_WORKSPACE/c3c/test/src/test_suite_runner.c3" -z -sERROR_ON_UNDEFINED_SYMBOLS=0 --target emscripten -o test_suite_runner.js
-          sed -i '1i\
-          globalThis._posix_spawnp = function(pid_ptr, path_ptr, file_actions, attrp, argv_ptr, envp_ptr) {\
-            var path = UTF8ToString(path_ptr);\
-            var args = [];\
-            var i = 0;\
-            while (true) {\
-              var arg_ptr = HEAPU32[(argv_ptr >> 2) + i];\
-              if (!arg_ptr) break;\
-              args.push(UTF8ToString(arg_ptr));\
-              i++;\
-            }\
-            var cmd = args.shift();\
-            try {\
-              var res = require("child_process").spawnSync(cmd, args, { stdio: "inherit", shell: true });\
-              return res.status || 0;\
-            } catch(e) {\
-              return 1;\
-            }\
-          };' test_suite_runner.js
-          node test_suite_runner.js "$GITHUB_WORKSPACE/build-debug/c3c.js" "$GITHUB_WORKSPACE/c3c/test/test_suite/" --no-terminal
+          node ./build-debug/c3c.js init-lib mylib
+          node ./build-debug/c3c.js init myproject
+          (cd myproject && node ./build-debug/c3c.js benchmark myproject --suppress-run)
+          rm -rf mylib.c3l myproject
+
+          node ./build-debug/c3c.js -vv dynamic-lib "$GITHUB_WORKSPACE/c3c/resources/examples/dynlib-test/add.c3" -o add
+          node ./build-debug/c3c.js compile "$GITHUB_WORKSPACE/c3c/resources/examples/dynlib-test/test.c3" -o test.js
+          node test.js -L . -l add -z -Wl,-rpath=.
+
+          node ./build-debug/c3c.js -vv static-lib "$GITHUB_WORKSPACE/c3c/resources/examples/staticlib-test/add.c3" -o libadd
+          node ./build-debug/c3c.js compile "$ROOT_DIR/resources/examples/staticlib-test/test.c3" -o test.js
+          node test.js -L . -l add
+          
+
+          
+          
 
       
           
