@@ -68,7 +68,7 @@ jobs:
             -DC3_LINK_DYNAMIC=OFF \
             -DC3_AVR_DISABLE=ON \
             -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH \
-            -DCMAKE_EXE_LINKER_FLAGS="-sALLOW_MEMORY_GROWTH=1;-sFORCE_FILESYSTEM=1;-sEXIT_RUNTIME=0;-sINITIAL_MEMORY=256MB;-sMAXIMUM_MEMORY=4GB;-sSTACK_SIZE=8MB;-sERROR_ON_UNDEFINED_SYMBOLS=0;-sEXPORTED_RUNTIME_METHODS=FS,callMain;-sEXPORTED_FUNCTIONS=_main,_fflush;--preload-file=$GITHUB_WORKSPACE/c3c/lib@/usr/lib/c3;--preload-file=$GITHUB_WORKSPACE/c3c/examples@/usr/share/c3/examples"
+            -DCMAKE_EXE_LINKER_FLAGS="-sALLOW_MEMORY_GROWTH=1 -sFORCE_FILESYSTEM=1 -sEXIT_RUNTIME=0 -sINITIAL_MEMORY=256MB -sMAXIMUM_MEMORY=4GB -sSTACK_SIZE=8MB -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=FS,callMain -sEXPORTED_FUNCTIONS=_main,_fflush --preload-file $GITHUB_WORKSPACE/c3c/lib@/usr/lib/c3 --preload-file $GITHUB_WORKSPACE/c3c/resources/examples@/usr/share/c3/examples"
           cmake --build build-debug
 
       - name: Run Unified Tests
@@ -76,7 +76,7 @@ jobs:
           cp build-debug/c3c.data .
           node ./build-debug/c3c.js --version
           # ./c3c/scripts/tools/emscripten_tests.sh "./build-debug/c3c.js"
-          node ./build-debug/c3c.js compile-run --run-dir /usr/share/c3/examples /usr/share/c3/examples/args.c3 --target emscripten -o args.js -- foo -bar 'baz baz'
+          node ./build-debug/c3c.js compile-run /usr/share/c3/examples/args.c3 --target emscripten -o args.js -- foo -bar 'baz baz'
 
       
           
