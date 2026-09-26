@@ -73,13 +73,34 @@ jobs:
 
       - name: Run Unified Tests
         run: |
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" -vv -z --no-entry dynamic-lib "$GITHUB_WORKSPACE/c3c/resources/examples/dynlib-test/add.c3" --target emscripten -o add
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/dynlib-test/test.c3" --target emscripten -o test.js
-          node test.js -L . -l add -z -Wl,-rpath=.
+          echo "--- Running Unit Tests ---"
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile-test "$GITHUB_WORKSPACE/c3c/test/unit" -O1 -D SLOW_TESTS --target emscripten -o unit_tests.js
+          node unit_tests.js
 
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" -vv -z --no-entry static-lib "$GITHUB_WORKSPACE/c3c/resources/examples/staticlib-test/add.c3" --no-entry --target emscripten -o libadd
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/staticlib-test/test.c3" --target emscripten -o test.js
-          node test.js -L . -l add
+          echo "--- Running Examples ---"
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/base64.c3" --target emscripten -o base64.js
+          node base64.js
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/binarydigits.c3" --target emscripten -o binarydigits.js
+          node binarydigits.js
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/mandelbrot.c3" --target emscripten -o mandelbrot.js
+          node mandelbrot.js
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/factorial_macro.c3" --target emscripten -o factorial.js
+          node factorial.js
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/fannkuch-redux.c3" --target emscripten -o fannkuch.js
+          node fannkuch.js 8
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/spectralnorm.c3" --target emscripten -o spectralnorm.js
+          node spectralnorm.js 100
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/nbodies.c3" --target emscripten -o nbodies.js
+          node nbodies.js 1000
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/plus_minus.c3" --target emscripten -o plus_minus.js
+          node plus_minus.js 10 + 20 - 5
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/fasta.c3" --target emscripten -o fasta.js
+          node fasta.js 100
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/args.c3" --target emscripten -o args.js
+          node args.js -- foo -bar "baz baz"
+
+          echo "--- Running Bare Wasm Test ---"
+          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile --target wasm32 -g0 --no-entry -Os "$GITHUB_WORKSPACE/c3c/resources/testfragments/wasm4.c3" -o wasm4.wasm
           
 
           
