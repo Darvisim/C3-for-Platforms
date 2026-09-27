@@ -40,10 +40,6 @@ jobs:
   build-wasi:
     name: WASI SDK Standalone Build (x64)
     runs-on: ubuntu-latest
-    
-    env:
-      WASI_VERSION: 34.0
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -69,6 +65,7 @@ jobs:
       - name: Build CMake with WASI Toolchain
         run: |
           cmake -S c3c -B build-wasi -G Ninja \
+            -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja \
             -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk.cmake \
             -DCMAKE_BUILD_TYPE=Release \
             -DC3_FETCH_LLVM=ON \
