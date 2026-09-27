@@ -54,7 +54,7 @@ jobs:
           sudo apt-get install -y ninja-build cmake
 
       - name: Clone C3 Compiler Source
-        run: git clone --depth=1 https://github.com c3c
+        run: git clone --depth=1 https://github.com/c3lang/c3c c3c
 
       - name: Install and Cache WASI SDK
         id: cache-wasi
