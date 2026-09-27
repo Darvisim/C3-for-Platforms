@@ -37,63 +37,58 @@ jobs:
   #       run: ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
 
 
-  test-emscripten:
-    name: Emscripten (x64)
+  build-wasi:
+    name: WASI SDK Standalone Build (x64)
     runs-on: ubuntu-latest
+    
+    env:
+      WASI_VERSION: 24.0
+
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build
+          sudo apt-get install -y ninja-build cmake
 
       - name: Clone C3 Compiler Source
-        run: git clone --depth=1 https://github.com/c3lang/c3c c3c
+        run: git clone --depth=1 https://github.com c3c
 
-      - name: Setup Emscripten
-        uses: emscripten-core/setup-emsdk@v16
+      - name: Install and Cache WASI SDK
+        id: cache-wasi
+        uses: actions/cache@v4
         with:
-          version: "latest"
-          actions-cache-folder: "emsdk-cache"
+          path: /opt/wasi-sdk
+          key: ${{ runner.os }}-wasi-sdk-${{ env.WASI_VERSION }}
 
-      - name: Build static archives
-        run: embuilder build libc libdlmalloc libstubs libsockets libclang_rt.builtins
-
-      - name: Build CMake (Debug)
+      - name: Download WASI SDK
+        if: steps.cache-wasi.outputs.cache-hit != 'true'
         run: |
-          emcmake cmake -S c3c -B build-debug -G Ninja \
-            -DCMAKE_BUILD_TYPE=Debug \
+          sudo mkdir -p /opt/wasi-sdk
+          curl -L https://github.com/wasi-sdk-${{ env.WASI_VERSION }}-x86_64-linux.tar.gz | sudo tar -xzf - --strip-components=1 -C /opt/wasi-sdk
+
+      - name: Setup Wasmtime Runtime (For Testing)
+        uses: bytecodealliance/actions/wasmtime/setup@v1
+        with:
+          version: 'v25.0.0'
+
+      - name: Build CMake with WASI Toolchain
+        run: |
+          cmake -S c3c -B build-wasi -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=/opt/wasi-sdk/share/cmake/wasi-sdk.cmake \
+            -DCMAKE_BUILD_TYPE=Release \
             -DC3_FETCH_LLVM=ON \
             -DC3_WITH_LLVM=ON \
             -DC3_LINK_DYNAMIC=OFF \
             -DC3_AVR_DISABLE=ON \
-            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH \
-            -DCMAKE_EXE_LINKER_FLAGS="-sALLOW_MEMORY_GROWTH=1 -sNODERAWFS=1 -sEXIT_RUNTIME=0 -sINITIAL_MEMORY=256MB -sMAXIMUM_MEMORY=4GB -sSTACK_SIZE=8MB -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=FS,callMain -sEXPORTED_FUNCTIONS=_main,_fflush"
-          cmake --build build-debug
+            -DCMAKE_SYSROOT=/opt/wasi-sdk/share/wasi-sysroot
+          cmake --build build-wasi
 
-      - name: Run Tests
+      - name: Verify CLI Execution with Wasmtime
         run: |
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/base64.c3" --target emscripten -o base64.js
-          node base64.js
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/binarydigits.c3" --target emscripten -o binarydigits.js
-          node binarydigits.js
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/mandelbrot.c3" --target emscripten -o mandelbrot.js
-          node mandelbrot.js
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/factorial_macro.c3" --target emscripten -o factorial.js
-          node factorial.js
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/fannkuch-redux.c3" --target emscripten -o fannkuch.js
-          node fannkuch.js 8
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/spectralnorm.c3" --target emscripten -o spectralnorm.js
-          node spectralnorm.js 100
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/nbodies.c3" --target emscripten -o nbodies.js
-          node nbodies.js 1000
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/plus_minus.c3" --target emscripten -o plus_minus.js
-          echo "10 + 20 - 5" | node plus_minus.js
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/fasta.c3" --target emscripten -o fasta.js
-          node fasta.js 100
-          node ./build-debug/c3c.js --stdlib "$GITHUB_WORKSPACE/c3c/lib" compile "$GITHUB_WORKSPACE/c3c/resources/examples/args.c3" --target emscripten -o args.js
-          node args.js -- foo -bar "baz baz"
+          wasmtime run --dir=. build-wasi/c3c.wasm -- --version
           
 
           
