@@ -42,11 +42,11 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      WASI_VERSION: 24.0
+      WASI_VERSION: 34.0
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install System Dependencies
         run: |
@@ -58,7 +58,7 @@ jobs:
 
       - name: Install and Cache WASI SDK
         id: cache-wasi
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /opt/wasi-sdk
           key: ${{ runner.os }}-wasi-sdk-${{ env.WASI_VERSION }}
@@ -67,12 +67,12 @@ jobs:
         if: steps.cache-wasi.outputs.cache-hit != 'true'
         run: |
           sudo mkdir -p /opt/wasi-sdk
-          curl -L https://github.com/wasi-sdk-${{ env.WASI_VERSION }}-x86_64-linux.tar.gz | sudo tar -xzf - --strip-components=1 -C /opt/wasi-sdk
+          curl -L https://github.com/WebAssembly/wasi-sdk/releases/latest/download/wasi-sdk-${{ env.WASI_VERSION }}-x86_64-linux.tar.gz | sudo tar -xzf - --strip-components=1 -C /opt/wasi-sdk
 
       - name: Setup Wasmtime Runtime (For Testing)
         uses: bytecodealliance/actions/wasmtime/setup@v1
         with:
-          version: 'v25.0.0'
+          version: 'v49.0.1'
 
       - name: Build CMake with WASI Toolchain
         run: |
