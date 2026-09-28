@@ -66,7 +66,7 @@ jobs:
             io::printn("Hello from WASI");
           }
           EOF
-          bin/c3/c3c compile build-wasi/hello.c3 --target wasm32 -o build-wasi/hello.wasm
+          bin/c3/c3c compile build-wasi/hello.c3 --no-entry --target wasm32 -o build-wasi/hello.wasm
           wasmtime run --dir=. build-wasi/hello.wasm
           
 
