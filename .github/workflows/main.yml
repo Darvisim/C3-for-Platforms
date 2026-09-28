@@ -37,21 +37,12 @@ jobs:
   #       run: ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
 
 
-  build-wasi:
-    name: WASI SDK Standalone Build (x64)
+  test-wasi:
+    name: WASI (x64)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
-
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build cmake
-
-      - name: Clone C3 Compiler Source
-        run: git clone --depth=1 https://github.com/c3lang/c3c c3c
-
+      -  uses: actions/checkout@v6
+        
       - name: Setup WASI SDK
         uses: bytecodealliance/setup-wasi-sdk-action@v1
 
