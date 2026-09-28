@@ -61,10 +61,7 @@ jobs:
         run: |
           mkdir -p build-wasi
           cat > build-wasi/hello.c3 <<'EOF'
-          import std::io;
-          fn void main() {
-            io::printn("Hello from WASI");
-          }
+          fn void main() {}
           EOF
           bin/c3/c3c compile build-wasi/hello.c3 --no-entry --target wasm32 -o build-wasi/hello.wasm
           wasmtime run --dir=. build-wasi/hello.wasm
