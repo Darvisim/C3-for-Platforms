@@ -60,7 +60,13 @@ jobs:
       - name: Compile and run a WASI smoke test
         run: |
           mkdir -p build-wasi
-          bin/c3/c3c compile resources/examples/hello_world_many.c3 --target wasm32 -o build-wasi/hello.wasm
+          cat > build-wasi/hello.c3 <<'EOF'
+          import std;
+          fn void main() {
+            io::printn("Hello from WASI");
+          }
+          EOF
+          bin/c3/c3c compile build-wasi/hello.c3 --target wasm32 -o build-wasi/hello.wasm
           wasmtime run --dir=. build-wasi/hello.wasm
           
 
