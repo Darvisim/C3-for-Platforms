@@ -61,7 +61,7 @@ jobs:
         run: |
           mkdir -p build-wasi
           cat > build-wasi/hello.c3 <<'EOF'
-          import std;
+          import std::io;
           fn void main() {
             io::printn("Hello from WASI");
           }
