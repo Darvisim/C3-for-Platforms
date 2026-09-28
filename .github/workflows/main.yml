@@ -54,30 +54,23 @@ jobs:
 
       - name: Setup WASI SDK
         uses: bytecodealliance/setup-wasi-sdk-action@v1
-        with:
-          version: '34'
 
       - name: Setup Wasmtime Runtime (For Testing)
         uses: bytecodealliance/actions/wasmtime/setup@v1
-        with:
-          version: 'v49.0.1'
 
-      - name: Build CMake with WASI Toolchain
+      - name: Download C3 Linux prerelease
         run: |
-          cmake -S c3c -B build-wasi -G Ninja \
-            -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$WASI_SDK_PATH/share/cmake/wasi-sdk.cmake \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DC3_FETCH_LLVM=ON \
-            -DC3_WITH_LLVM=ON \
-            -DC3_LINK_DYNAMIC=OFF \
-            -DC3_AVR_DISABLE=ON \
-            -DCMAKE_SYSROOT=$WASI_SDK_PATH/share/wasi-sysroot
-          cmake --build build-wasi
-
-      - name: Verify CLI Execution with Wasmtime
+          mkdir -p bin
+          curl -fL https://github.com/c3lang/c3c/releases/download/latest-prerelease-tag/c3-linux.tar.gz -o /tmp/c3-linux.tar.gz
+          tar -xzf /tmp/c3-linux.tar.gz -C bin
+          chmod +x bin/c3/c3c
+          bin/c3/c3c --version
+  
+      - name: Compile and run a WASI smoke test
         run: |
-          wasmtime run --dir=. build-wasi/c3c.wasm -- --version
+          mkdir -p build-wasi
+          bin/c3/c3c compile resources/examples/hello_world_many.c3 --target wasm32 -o build-wasi/hello.wasm
+          wasmtime run --dir=. build-wasi/hello.wasm
           
 
           
