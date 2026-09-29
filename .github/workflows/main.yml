@@ -3,72 +3,52 @@ on:
   workflow_dispatch:
   
 jobs:
-  # test-azl:
-  #   name: Azure Linux (x64)
-  #   runs-on: ubuntu-24.04
-  #   container:
-  #     image: mcr.microsoft.com/azurelinux-beta/base/core:4.0
-  #   strategy:
-  #     fail-fast: false
-  #   steps: 
-  #     - name: Bootstrap Core System Dependencies
-  #       run: |
-  #         dnf check-update || true
-  #         dnf install -y git tar shadow-utils
-        
-  #     - uses: actions/checkout@v6
-  
-  #     - name: Install Development Build Tools
-  #       run: |
-  #         dnf check-update || true
-  #         dnf install -y python3 clang gcc-c++ libcurl-devel meson ninja-build libzstd-devel \
-  #                      libX11-devel libXrandr-devel libXinerama-devel libXi-devel \
-  #                      libXxf86vm-devel libXcursor-devel
-          
-  #     - name: Clone C3 Compiler Source
-  #       run: git clone --depth=1 https://github.com/Manulinares/c3c -b meson_build_system --single-branch
-  
-  #     - name: Build Meson (Debug)
-  #       run: |
-  #         meson setup c3c build-debug --buildtype=debug -Dfetch_llvm=true
-  #         meson compile -C build-debug
-  
-  #     - name: Run Unified Tests
-  #       run: ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
-
-
-  test-wasi:
-    name: WASI (x64)
-    runs-on: ubuntu-latest
+  test-android:
+    name: Android (x64)
+    runs-on: ubuntu-24.04
     steps:
-      -  uses: actions/checkout@v6
-        
-      - name: Setup WASI SDK
-        uses: bytecodealliance/setup-wasi-sdk-action@v1
-
-      - name: Setup Wasmtime Runtime (For Testing)
-        uses: bytecodealliance/actions/wasmtime/setup@v1
-
-      - name: Download C3 Linux prerelease
-        run: |
-          mkdir -p bin
-          curl -fL https://github.com/c3lang/c3c/releases/download/latest-prerelease-tag/c3-linux.tar.gz -o /tmp/c3-linux.tar.gz
-          tar -xzf /tmp/c3-linux.tar.gz -C bin
-          chmod +x bin/c3/c3c
-          bin/c3/c3c --version
-  
-      - name: Compile and run a WASI smoke test
-        run: |
-          mkdir -p build-wasi
-          cat > build-wasi/hello.c3 <<'EOF'
-          fn void main() {}
-          EOF
-          bin/c3/c3c compile build-wasi/hello.c3 --no-entry --target wasm32 -o build-wasi/hello.wasm
-          wasmtime run --dir=. build-wasi/hello.wasm
-          
-
-          
-          
-
+      - uses: actions/checkout@v6
       
+      - name: Clone C3 Compiler Source
+        run: git clone --depth=1 https://github.com/c3lang/c3c c3c
+        
+      - name: Setup Termux
+        uses: Darvisim/Playground@main
+        with:
+          arch: x86_64
           
+      - name: Select Mirror
+        run: |
+          for m in \
+            "https://termux.mentality.rip/termux-main" \
+            "https://ftp.agdsn.de/termux/termux-main" \
+            "https://linux.domainesia.com/applications/termux/termux-main"
+          do
+            echo "Trying mirror: $m"
+            printf "deb %s stable main\n" "$m" > "${PREFIX}/etc/apt/sources.list"
+            if pkg update -y; then
+              echo "Selected mirror: $m"
+              exit 0
+            fi
+          done
+    
+          echo "All mirrors failed"
+          exit 1
+  
+      - name: Install dependencies
+        shell: termux {0}
+        run: |
+          for i in 1 2; do \
+            pkg update -y && \
+            pkg install -y llvm binutils libgc build-essential cmake git libedit zlib clang make mlir llvm-tools libpolly python libllvm-static && break || sleep 10; \
+          done
+  
+      - name: Build Meson (Debug)
+        shell: termux {0}
+        run: |
+          cmake -S c3c -B build-debug -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build-debug
+  
+      - name: Run Unified Tests
+        shell: termux {0}
+        run: bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c" "android"
