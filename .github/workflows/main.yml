@@ -4,7 +4,7 @@ on:
   
 jobs:
   test-android:
-    name: Android (x64)
+    name: Android (x86_64)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
@@ -25,7 +25,7 @@ jobs:
             pkg install -y llvm binutils libgc build-essential cmake git libedit zlib clang make mlir llvm-tools libpolly python libllvm-static && break || sleep 10; \
           done
   
-      - name: Build Meson (Debug)
+      - name: Build CMake (Debug)
         shell: termux {0}
         run: |
           cmake -S c3c -B build-debug -DCMAKE_BUILD_TYPE=Debug
@@ -33,4 +33,6 @@ jobs:
   
       - name: Run Unified Tests
         shell: termux {0}
-        run: bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c" "android"
+        run: |
+         chmod +x ./c3c/scripts/tools/ci_tests.sh
+         ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c" "android"
