@@ -1,7 +1,10 @@
 name: CI
 on:
   workflow_dispatch:
-  
+
+env:
+  CACHE_INVALIDATION_SEED: '%G-%V-1'
+
 jobs:
   test-android:
     name: Android (x86_64)
@@ -11,11 +14,41 @@ jobs:
       
       - name: Clone C3 Compiler Source
         run: git clone --depth=1 https://github.com/c3lang/c3c
+
+      - name: Get current date context
+        id: date
+        run: echo "date=$(date +'${{ env.CACHE_INVALIDATION_SEED }}')" >> $GITHUB_OUTPUT
+
+      - name: Cache Termux packages
+        uses: actions/cache@v6
+        with:
+          path: /data/data/com.termux/cache/apt/archives/
+          key: termux-cache-x86_64-${{ steps.date.outputs.date }}
         
       - name: Setup Termux
         uses: Darvisim/Playground@main
         with:
           arch: x86_64
+
+      - name: select termux mirror
+        shell: termux {0}
+        run: |
+          for m in \
+            "https://termux.mentality.rip/termux-main" \
+            "https://ftp.agdsn.de/termux/termux-main" \
+            "https://linux.domainesia.com/applications/termux/termux-main"
+          do
+            echo "Trying mirror: $m"
+            printf "deb %s stable main\n" "$m" > "${PREFIX}/etc/apt/sources.list"
+            if pkg update -y; then
+              echo "Selected mirror: $m"
+              exit 0
+            fi
+          done
+    
+          echo "All mirrors failed"
+          exit 1
+          ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
   
       - name: Install dependencies
         shell: termux {0}
@@ -34,5 +67,4 @@ jobs:
       - name: Run Unified Tests
         shell: termux {0}
         run: |
-         chmod +x ./c3c/scripts/tools/ci_tests.sh
-         ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c" "android"
+         bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c" "android"
