@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v6
       
       - name: Clone C3 Compiler Source
-        run: git clone --depth=1 https://github.com/c3lang/c3c c3c
+        run: git clone --depth=1 https://github.com/c3lang/c3c
         
       - name: Setup Termux
         uses: Darvisim/Playground@main
