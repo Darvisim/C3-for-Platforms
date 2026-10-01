@@ -11,7 +11,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
-      
+        
+      - name: Setup Termux
+        uses: Darvisim/Playground@main
+        with:
+          arch: x86_64
+
       - name: Clone C3 Compiler Source
         run: git clone --depth=1 https://github.com/c3lang/c3c
 
@@ -24,11 +29,6 @@ jobs:
         with:
           path: /data/data/com.termux/cache/apt/archives/
           key: termux-cache-x86_64-${{ steps.date.outputs.date }}
-        
-      - name: Setup Termux
-        uses: Darvisim/Playground@main
-        with:
-          arch: x86_64
 
       - name: select termux mirror
         shell: termux {0}
