@@ -17,19 +17,6 @@ jobs:
         with:
           arch: x86_64
 
-      - name: Clone C3 Compiler Source
-        run: git clone --depth=1 https://github.com/c3lang/c3c
-
-      - name: Get current date context
-        id: date
-        run: echo "date=$(date +'${{ env.CACHE_INVALIDATION_SEED }}')" >> $GITHUB_OUTPUT
-
-      - name: Cache Termux packages
-        uses: actions/cache@v6
-        with:
-          path: /data/data/com.termux/cache/apt/archives/
-          key: termux-cache-x86_64-${{ steps.date.outputs.date }}
-
       - name: select termux mirror
         shell: termux {0}
         run: |
@@ -49,6 +36,26 @@ jobs:
           echo "All mirrors failed"
           exit 1
           ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
+
+      - name: Install Prerequisite Dependencies
+        shell: termux {0}
+        run: |
+          for i in 1 2; do pkg update && break || sleep 5; done
+          bash -c "yes | pkg upgrade -y"
+          for i in 1 2; do pkg install -y nodejs-lts tar git && break || sleep 5; done
+
+      - name: Clone C3 Compiler Source
+        run: git clone --depth=1 https://github.com/c3lang/c3c
+
+      - name: Get current date context
+        id: date
+        run: echo "date=$(date +'${{ env.CACHE_INVALIDATION_SEED }}')" >> $GITHUB_OUTPUT
+
+      - name: Cache Termux packages
+        uses: actions/cache@v6
+        with:
+          path: /data/data/com.termux/cache/apt/archives/
+          key: termux-cache-x86_64-${{ steps.date.outputs.date }}
   
       - name: Install dependencies
         shell: termux {0}
