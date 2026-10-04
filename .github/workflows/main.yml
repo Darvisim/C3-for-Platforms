@@ -10,13 +10,14 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Clone C3 Compiler Source
-        run: git clone --depth=1 https://github.com/c3lang/c3c
+        run: git clone --depth=1 https://github.com/c3lang/c3c c3c
+
+      - name: Install dependencies
+        run: brew install llvm
   
       - name: Build CMake (Debug)
         run: |
-          cmake -S c3c -B build-debug \
-            -DCMAKE_BUILD_TYPE=Debug \
-            -DLLVM_DIR=$(brew --prefix llvm@21)/lib/cmake/llvm
+          cmake -S c3c -B build-debug -DCMAKE_BUILD_TYPE=Debug
           cmake --build build-debug
   
       - name: Run Unified Tests
