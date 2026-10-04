@@ -20,9 +20,9 @@ jobs:
           
           cmake -S c3c -B build-debug \
             -DCMAKE_BUILD_TYPE=Debug \
-            -DLLVM_DIR="$LLVM_PREFIX/lib/cmake/llvm" \
-            -DLLVM_ROOT="$LLVM_PREFIX" \
-            -DCMAKE_PREFIX_PATH="$LLVM_PREFIX"
+            -DCMAKE_PREFIX_PATH="$LLVM_PREFIX" \
+            -DLLVM_DIR="${LLVM_PREFIX}/lib/cmake/llvm" \
+            -DC3_LLD_DIR="${LLVM_PREFIX}/lib"
             
           cmake --build build-debug
   
