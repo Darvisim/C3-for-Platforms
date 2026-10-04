@@ -2,76 +2,21 @@ name: CI
 on:
   workflow_dispatch:
 
-env:
-  CACHE_INVALIDATION_SEED: '%G-%V-1'
-
 jobs:
-  test-android:
-    name: Android (x86_64)
-    runs-on: ubuntu-24.04
+  test-xcode:
+    name: XCode (arm64)
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@v6
-        
-      - name: Setup Termux
-        uses: Darvisim/Playground@main
-        with:
-          arch: x86_64
-
-      - name: select termux mirror
-        shell: termux {0}
-        run: |
-          for m in \
-            "https://termux.mentality.rip/termux-main" \
-            "https://ftp.agdsn.de/termux/termux-main" \
-            "https://linux.domainesia.com/applications/termux/termux-main"
-          do
-            echo "Trying mirror: $m"
-            printf "deb %s stable main\n" "$m" > "${PREFIX}/etc/apt/sources.list"
-            if pkg update -y; then
-              echo "Selected mirror: $m"
-              exit 0
-            fi
-          done
-    
-          echo "All mirrors failed"
-          exit 1
-          ln -sf ${PREFIX}/etc/termux/mirrors/default ${PREFIX}/etc/termux/chosen_mirrors
-
-      - name: Install Prerequisite Dependencies
-        shell: termux {0}
-        run: |
-          for i in 1 2; do pkg update && break || sleep 5; done
-          bash -c "yes | pkg upgrade -y"
-          for i in 1 2; do pkg install -y nodejs-lts tar git && break || sleep 5; done
 
       - name: Clone C3 Compiler Source
         shell: termux {0}
         run: git clone --depth=1 https://github.com/c3lang/c3c
-
-      - name: Get current date context
-        id: date
-        run: echo "date=$(date +'${{ env.CACHE_INVALIDATION_SEED }}')" >> $GITHUB_OUTPUT
-
-      - name: Cache Termux packages
-        uses: actions/cache@v6
-        with:
-          path: /data/data/com.termux/cache/apt/archives/
-          key: termux-cache-x86_64-${{ steps.date.outputs.date }}
-  
-      - name: Install dependencies
-        shell: termux {0}
-        run: |
-          for i in 1 2; do \
-            pkg update -y && \
-            pkg install -y llvm binutils libgc build-essential cmake git libedit zlib clang make mlir llvm-tools libpolly python libllvm-static && break || sleep 10; \
-          done
   
       - name: Build CMake (Debug)
-        shell: termux {0}
         run: |
           cmake -S c3c -B build-debug -DCMAKE_BUILD_TYPE=Debug
           cmake --build build-debug
   
       - name: Run Unified Tests
-        shell: termux {0}
-        run: bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c" "android"
+        run: bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
