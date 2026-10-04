@@ -12,6 +12,8 @@ jobs:
       - name: Clone C3 Compiler Source
         run: git clone --depth=1 https://github.com/c3lang/c3c c3c
   
+      - run: brew install llvm
+      
       - name: Build CMake (Debug)
         run: |
           LLVM_PREFIX=$(brew --prefix llvm)
