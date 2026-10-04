@@ -14,9 +14,14 @@ jobs:
   
       - name: Build CMake (Debug)
         run: |
+          LLVM_PREFIX=$(brew --prefix llvm)
+          
           cmake -S c3c -B build-debug \
             -DCMAKE_BUILD_TYPE=Debug \
-            -DC3_FETCH_LLVM=ON
+            -DLLVM_DIR="$LLVM_PREFIX/lib/cmake/llvm" \
+            -DLLVM_ROOT="$LLVM_PREFIX" \
+            -DCMAKE_PREFIX_PATH="$LLVM_PREFIX"
+            
           cmake --build build-debug
   
       - name: Run Unified Tests
