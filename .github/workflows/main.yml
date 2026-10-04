@@ -10,7 +10,6 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Clone C3 Compiler Source
-        shell: termux {0}
         run: git clone --depth=1 https://github.com/c3lang/c3c
   
       - name: Build CMake (Debug)
