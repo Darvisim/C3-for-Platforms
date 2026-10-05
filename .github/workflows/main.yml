@@ -3,25 +3,56 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-xcode:
-    name: XCode (arm64)
-    runs-on: xcode-27
-    steps:
-      - uses: actions/checkout@v6
+  # test-xcode:
+  #   name: XCode (arm64)
+  #   runs-on: xcode-27
+  #   steps:
+  #     - uses: actions/checkout@v6
 
-      - name: Clone C3 Compiler Source
-        run: git clone --depth=1 https://github.com/c3lang/c3c c3c
+  #     - name: Clone C3 Compiler Source
+  #       run: git clone --depth=1 https://github.com/c3lang/c3c c3c
   
-      - run: brew install llvm lld
+  #     - run: brew install llvm lld
       
-      - name: Build CMake (Debug)
-        run: |
-          cmake -S c3c -B build-debug \
-            -DCMAKE_BUILD_TYPE=Debug \
-            -DCMAKE_PREFIX_PATH="$(brew --prefix llvm)" \
-            -DLLVM_DIR="$(brew --prefix llvm)/lib/cmake/llvm" \
-            -DC3_LLD_DIR="$(brew --prefix lld)/lib"
-          cmake --build build-debug
+  #     - name: Build CMake (Debug)
+  #       run: |
+  #         cmake -S c3c -B build-debug \
+  #           -DCMAKE_BUILD_TYPE=Debug \
+  #           -DCMAKE_PREFIX_PATH="$(brew --prefix llvm)" \
+  #           -DLLVM_DIR="$(brew --prefix llvm)/lib/cmake/llvm" \
+  #           -DC3_LLD_DIR="$(brew --prefix lld)/lib"
+  #         cmake --build build-debug
   
-      - name: Run Unified Tests
-        run: bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
+  #     - name: Run Unified Tests
+  #       run: bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
+
+  test-emscripten:
+    name: Emscripten (x64)
+    runs-on: ubuntu-24.04
+    steps:
+     - uses: actions/checkout@v6
+     
+     - name: Clone C3 Compiler Source
+       run: git clone --depth=1 https://github.com/c3lang/c3c c3c
+
+     - name: Extract c3
+       run: |
+         mkdir -p bin
+         curl -L https://github.com/c3lang/c3c/releases/download/latest-prerelease-tag/c3-linux-debug.tar.gz -o bin/c3-linux-debug.tar.gz 
+         tar -xzf bin/c3-linux-debug.tar.gz -C bin
+         chmod +x bin/c3/c3c
+
+     - name: Setup Emscripten
+       run: |
+         git clone https://github.com/emscripten-core/emsdk.git
+         cd emsdk
+         ./emsdk install latest
+         ./emsdk activate latest
+         echo "$GITHUB_WORKSPACE/emsdk" >> $GITHUB_PATH
+         echo "$GITHUB_WORKSPACE/emsdk/upstream/emscripten" >> $GITHUB_PATH
+
+     - name: Run test
+       run: |
+         ./bin/c3/c3c compile-run -O1 "c3c/test/src/test_suite_runner.c3" -o test_suite_runner.js
+         node test_suite_runner.js -- ./bin/c3/c3c "c3c/test/test_suite/" "--no-terminal"
+          
