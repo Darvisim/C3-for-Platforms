@@ -38,7 +38,7 @@ jobs:
      - name: Extract c3
        run: |
          mkdir -p bin
-         curl -L https://github.com/c3lang/c3c/releases/download/latest-prerelease-tag/c3-linux-debug.tar.gz -o bin/c3-linux-debug.tar.gz 
+         curl -L https://github.com/c3lang/c3c/releases/download/latest/c3-linux-debug.tar.gz -o bin/c3-linux-debug.tar.gz 
          tar -xzf bin/c3-linux-debug.tar.gz -C bin
          chmod +x bin/c3/c3c
 
