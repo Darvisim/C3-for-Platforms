@@ -26,8 +26,8 @@ jobs:
   #     - name: Run Unified Tests
   #       run: bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
 
-  test-emscripten:
-    name: Emscripten (x64)
+  test-wasm:
+    name: Wasm (x64)
     runs-on: ubuntu-24.04
     steps:
      - uses: actions/checkout@v6
@@ -42,17 +42,17 @@ jobs:
          tar -xzf bin/c3-linux-debug.tar.gz -C bin
          chmod +x bin/c3/c3c
 
-     - name: Setup Emscripten
-       run: |
-         git clone https://github.com/emscripten-core/emsdk.git
-         cd emsdk
-         ./emsdk install latest
-         ./emsdk activate latest
-         echo "$GITHUB_WORKSPACE/emsdk" >> $GITHUB_PATH
-         echo "$GITHUB_WORKSPACE/emsdk/upstream/emscripten" >> $GITHUB_PATH
+     # - name: Setup Emscripten
+     #   run: |
+     #     git clone https://github.com/emscripten-core/emsdk.git
+     #     cd emsdk
+     #     ./emsdk install latest
+     #     ./emsdk activate latest
+     #     echo "$GITHUB_WORKSPACE/emsdk" >> $GITHUB_PATH
+     #     echo "$GITHUB_WORKSPACE/emsdk/upstream/emscripten" >> $GITHUB_PATH
 
      - name: Run test
        run: |
-         ./bin/c3/c3c compile-run c3c/resources/examples/hello_world_many.c3 --target emscripten -o hello_world_many.js
-         node hello_world_many.js
+         ./bin/c3/c3c compile-run c3c/resources/examples/hello_world_many.c3 --target wasm32 -o hello_world_many.wasm
+         node hello_world_many.wasm
           
