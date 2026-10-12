@@ -32,15 +32,8 @@ jobs:
     steps:
      - uses: actions/checkout@v6
      
-     - name: Clone C3 Compiler Source
-       run: git clone --depth=1 https://github.com/c3lang/c3c c3c
-
-     - name: Extract c3
-       run: |
-         mkdir -p bin
-         curl -L https://github.com/c3lang/c3c/releases/download/v0.8.5/c3-linux-debug.tar.gz -o bin/c3-linux-debug.tar.gz 
-         tar -xzf bin/c3-linux-debug.tar.gz -C bin
-         chmod +x bin/c3/c3c
+     - name: Install C3
+       uses: Manulinares/setup-c3@v1
 
      # - name: Setup Emscripten
      #   run: |
@@ -53,6 +46,6 @@ jobs:
 
      - name: Run test
        run: |
-         ./bin/c3/c3c compile c3c/resources/examples/hello_world_many.c3 --no-entry --target wasm32 -o hello_world_many.wasm
+         c3c compile c3c/resources/examples/hello_world_many.c3 --no-entry --target wasm32 -o hello_world_many.wasm
          node hello_world_many.wasm
           
