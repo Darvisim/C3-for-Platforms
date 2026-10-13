@@ -33,7 +33,7 @@ jobs:
      - uses: actions/checkout@v6
 
      - name: Clone C3 Compiler Source
-       run: git clone --depth=1 https://github.com/c3lang/c3c c3c
+       run: git clone --depth=1 https://github.com/Darvisim/c3c -b wasm c3c
      
      - name: Install C3
        uses: Manulinares/setup-c3@v1
@@ -49,18 +49,6 @@ jobs:
      #     ./emsdk activate latest
      #     echo "$GITHUB_WORKSPACE/emsdk" >> $GITHUB_PATH
      #     echo "$GITHUB_WORKSPACE/emsdk/upstream/emscripten" >> $GITHUB_PATH
-
-     - name: Apply Patch
-       run: |
-         perl -pi -e 's/\bWASM\b/EMSCRIPTEN/g' \
-           c3c/lib/std/gfx/gfx.c3 \
-           c3c/lib/std/gfx/private/gfx_egl.c3 \
-           c3c/lib/std/gfx/private/gfx_gl.c3 \
-           c3c/lib/std/gfx/private/gfx_impl.c3 \
-           c3c/lib/std/gfx/private/gfx_private.c3 \
-           c3c/lib/std/gfx/private/gfx_vk.c3 \
-           c3c/lib/std/gfx/private/gfx_wasm.c3 \
-           c3c/lib/std/gfx/private/gfx_wgpu.c3
            
      - name: Run test
        run: |
