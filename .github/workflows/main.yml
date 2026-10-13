@@ -52,15 +52,15 @@ jobs:
 
      - name: Run test
        run: |
-          sed -i 's/\bWASM\b/EMSCRIPTEN/g' \
-            c3c/lib/std/gfx/gfx.c3 \
-            c3c/lib/std/gfx/private/gfx_egl.c3 \
-            c3c/lib/std/gfx/private/gfx_gl.c3 \
-            c3c/lib/std/gfx/private/gfx_impl.c3 \
-            c3c/lib/std/gfx/private/gfx_private.c3 \
-            c3c/lib/std/gfx/private/gfx_vk.c3 \
-            c3c/lib/std/gfx/private/gfx_wasm.c3 \
-            c3c/lib/std/gfx/private/gfx_wgpu.c3
+          perl -pi -e 's/\bWASM\b/EMSCRIPTEN/g' \
+           c3c/lib/std/gfx/gfx.c3 \
+           c3c/lib/std/gfx/private/gfx_egl.c3 \
+           c3c/lib/std/gfx/private/gfx_gl.c3 \
+           c3c/lib/std/gfx/private/gfx_impl.c3 \
+           c3c/lib/std/gfx/private/gfx_private.c3 \
+           c3c/lib/std/gfx/private/gfx_vk.c3 \
+           c3c/lib/std/gfx/private/gfx_wasm.c3 \
+           c3c/lib/std/gfx/private/gfx_wgpu.c3
           c3c compile c3c/resources/examples/hello_world_many.c3 --no-entry --target wasm32 -o hello_world_many.wasm
           wasmtime hello_world_many.wasm
           
