@@ -50,9 +50,9 @@ jobs:
      #     echo "$GITHUB_WORKSPACE/emsdk" >> $GITHUB_PATH
      #     echo "$GITHUB_WORKSPACE/emsdk/upstream/emscripten" >> $GITHUB_PATH
 
-     - name: Run test
+     - name: Apply Patch
        run: |
-          perl -pi -e 's/\bWASM\b/EMSCRIPTEN/g' \
+         perl -pi -e 's/\bWASM\b/EMSCRIPTEN/g' \
            c3c/lib/std/gfx/gfx.c3 \
            c3c/lib/std/gfx/private/gfx_egl.c3 \
            c3c/lib/std/gfx/private/gfx_gl.c3 \
@@ -61,6 +61,9 @@ jobs:
            c3c/lib/std/gfx/private/gfx_vk.c3 \
            c3c/lib/std/gfx/private/gfx_wasm.c3 \
            c3c/lib/std/gfx/private/gfx_wgpu.c3
+           
+     - name: Run test
+       run: |
           c3c compile c3c/resources/examples/hello_world_many.c3 --no-entry --target wasm32 -o hello_world_many.wasm
           wasmtime hello_world_many.wasm
           
