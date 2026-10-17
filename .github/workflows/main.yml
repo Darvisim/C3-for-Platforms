@@ -3,59 +3,30 @@ on:
   workflow_dispatch:
 
 jobs:
-  # test-xcode:
-  #   name: XCode (arm64)
-  #   runs-on: xcode-27
-  #   steps:
-  #     - uses: actions/checkout@v6
-
-  #     - name: Clone C3 Compiler Source
-  #       run: git clone --depth=1 https://github.com/c3lang/c3c c3c
-  
-  #     - run: brew install llvm lld
-      
-  #     - name: Build CMake (Debug)
-  #       run: |
-  #         cmake -S c3c -B build-debug \
-  #           -DCMAKE_BUILD_TYPE=Debug \
-  #           -DCMAKE_PREFIX_PATH="$(brew --prefix llvm)" \
-  #           -DLLVM_DIR="$(brew --prefix llvm)/lib/cmake/llvm" \
-  #           -DC3_LLD_DIR="$(brew --prefix lld)/lib"
-  #         cmake --build build-debug
-  
-  #     - name: Run Unified Tests
-  #       run: bash ./c3c/scripts/tools/ci_tests.sh "./build-debug/c3c"
-
-  test-wasm:
-    name: Wasm (x64)
-    runs-on: ubuntu-24.04
+  test-ios:
+    name: iOS (arm64)
+    runs-on: macos-15
     steps:
-     - uses: actions/checkout@v6
-
-     - name: Clone C3 Compiler Source
-       run: git clone --depth=1 https://github.com/c3lang/c3c c3c
-     
-     - name: Install C3
-       uses: Manulinares/setup-c3@v1
-
-     - name: Setup wasmtime
-       uses: bytecodealliance/actions/wasmtime/setup@v1
-
-     # - name: Setup wasm-tools
-     #  uses: bytecodealliance/actions/wasm-tools/setup@v1
-
-     # - name: Setup Emscripten
-     #   run: |
-     #     git clone https://github.com/emscripten-core/emsdk.git
-     #     cd emsdk
-     #     ./emsdk install latest
-     #     ./emsdk activate latest
-     #     echo "$GITHUB_WORKSPACE/emsdk" >> $GITHUB_PATH
-     #     echo "$GITHUB_WORKSPACE/emsdk/upstream/emscripten" >> $GITHUB_PATH
-           
-     - name: Run test
-       run: |
-          c3c compile c3c/resources/examples/hello_world_many.c3 --no-entry --target wasm32 -o hello_world_many.wasm
-          # wasm-tools print hello_world_many.wasm
-          wasmtime hello_world_many.wasm
-          
+      - uses: actions/checkout@v6
+      - name: Clone C3 Compiler Source
+        run: git clone --depth=1 https://github.com/c3lang/c3c c3c
+      - name: CMake Build (Host)
+        run: |
+          cmake -S c3c -B build-debug -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DC3_FETCH_LLVM=ON
+          cmake --build build-debug
+      - name: Setup and Boot iOS Simulator
+        uses: futureware-tech/simulator-action@v6
+        with:
+          os: 'iOS'
+          os_version: ">=18.0"
+      - name: Run Unified Tests
+        run: |
+         SIM_HOME=$(xcrun simctl getenv booted HOME)
+         cp ./c3c/* "$SIM_HOME/"
+         if [ -d "$SIM_HOME/c3c" ]; then
+           xcrun simctl spawn booted /bin/sh -c "$SIM_HOME/c3c/scripts/tools/ci_tests.sh ./build-debug/c3c ios"
+         else
+           xcrun simctl spawn booted /bin/sh -c "$SIM_HOME/scripts/tools/ci_tests.sh ./build-debug/c3c ios"
+         fi
