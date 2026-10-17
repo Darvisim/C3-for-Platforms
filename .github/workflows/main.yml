@@ -14,6 +14,7 @@ jobs:
         run: |
           cmake -S c3c -B build-debug -G Ninja \
             -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_EXE_LINKER_FLAGS="-Wl,-w" \
             -DC3_FETCH_LLVM=ON
           cmake --build build-debug
       - name: Setup and Boot iOS Simulator
@@ -23,10 +24,9 @@ jobs:
           os_version: ">=18.0"
       - name: Run Unified Tests
         run: |
-         SIM_HOME=$(xcrun simctl getenv booted HOME)
-         cp ./c3c/* "$SIM_HOME/"
-         if [ -d "$SIM_HOME/c3c" ]; then
-           xcrun simctl spawn booted /bin/sh -c "$SIM_HOME/c3c/scripts/tools/ci_tests.sh ./build-debug/c3c ios"
-         else
-           xcrun simctl spawn booted /bin/sh -c "$SIM_HOME/scripts/tools/ci_tests.sh ./build-debug/c3c ios"
-         fi
+         SIM_HOME="$(xcrun simctl getenv booted HOME)"
+         cp -R ./c3c "$SIM_HOME/"
+
+         xcrun simctl spawn booted /bin/sh \
+           "$SIM_HOME/c3c/scripts/tools/ci_tests.sh" \
+           ./build-debug/c3c ios
