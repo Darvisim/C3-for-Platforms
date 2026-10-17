@@ -27,6 +27,6 @@ jobs:
          SIM_HOME="$(xcrun simctl getenv booted HOME)"
          cp -R ./c3c "$SIM_HOME/"
 
-         xcrun simctl spawn booted /bin/sh \
+         xcrun simctl spawn booted /bin/bash \
            "$SIM_HOME/c3c/scripts/tools/ci_tests.sh" \
            ./build-debug/c3c ios
