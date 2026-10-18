@@ -24,7 +24,12 @@ jobs:
           os_version: ">=18.0"
       - name: Run Unified Tests
         run: |
-         SIM_HOME="$(xcrun simctl getenv booted HOME)"
-         cp -R ./c3c "$SIM_HOME/"
+         HOME="$(xcrun simctl getenv booted HOME)"
+         PATH="$(xcrun simctl getenv booted PATH)"
+         cp -R ./c3c "$HOME/"
+         export PATH=/bin:/usr/bin:/sbin:/usr/sbin:$PATH
 
-         xcrun simctl spawn booted "$SIM_HOME/c3c/scripts/tools/ci_tests.sh" ./build-debug/c3c ios
+         xcrun simctl spawn booted /bin/sh -c \
+           "$HOME/c3c/scripts/tools/ci_tests.sh" \
+           ./build-debug/c3c \
+           ios
