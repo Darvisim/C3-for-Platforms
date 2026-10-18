@@ -5,7 +5,7 @@ on:
 jobs:
   test-ios:
     name: iOS (arm64)
-    runs-on: macos-15
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
       - name: Clone C3 Compiler Source
@@ -27,6 +27,4 @@ jobs:
          SIM_HOME="$(xcrun simctl getenv booted HOME)"
          cp -R ./c3c "$SIM_HOME/"
 
-         xcrun simctl spawn booted /bin/bash \
-           "$SIM_HOME/c3c/scripts/tools/ci_tests.sh" \
-           ./build-debug/c3c ios
+         xcrun simctl spawn booted "$SIM_HOME/c3c/scripts/tools/ci_tests.sh" ./build-debug/c3c ios
