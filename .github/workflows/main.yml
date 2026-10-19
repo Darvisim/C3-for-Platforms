@@ -26,4 +26,5 @@ jobs:
         run: |
          HOME="$(xcrun simctl getenv booted HOME)"
          cp -R ./c3c "$HOME/"
-         sh "$HOME/c3c/scripts/tools/ci_tests.sh" ./build-debug/c3c ios
+         cd "$HOME/c3c"
+         bash ./scripts/tools/ci_tests.sh ./build-debug/c3c ios
