@@ -10,13 +10,13 @@ jobs:
       - uses: actions/checkout@v6
       - name: Clone C3 Compiler Source
         run: git clone --depth=1 https://github.com/c3lang/c3c c3c
-      # - name: CMake Build (Host)
-      #   run: |
-      #     cmake -S c3c -B build-debug -G Ninja \
-      #       -DCMAKE_BUILD_TYPE=Debug \
-      #       -DCMAKE_EXE_LINKER_FLAGS="-Wl,-w" \
-      #       -DC3_FETCH_LLVM=ON
-      #     cmake --build build-debug
+      - name: CMake Build (Host)
+        run: |
+          cmake -S c3c -B build-debug -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_EXE_LINKER_FLAGS="-Wl,-w" \
+            -DC3_FETCH_LLVM=ON
+          cmake --build build-debug
       - name: Setup and Boot iOS Simulator
         uses: futureware-tech/simulator-action@v6
         with:
@@ -27,7 +27,6 @@ jobs:
         run: |
          HOME="$(xcrun simctl getenv booted HOME)"
          cp -R ./c3c "$HOME/"
-         # cp -R ./build-debug "$HOME/"
+         cp ./build-debug/c3c "$HOME/c3c"
          cd "$HOME/c3c"
-         ls
-         # bash ./scripts/tools/ci_tests.sh ./build-debug/c3c "ios"
+         bash ./scripts/tools/ci_tests.sh ./build-debug/c3c "ios"
