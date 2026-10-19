@@ -22,6 +22,7 @@ jobs:
         with:
           os: 'iOS'
           os_version: ">=18.0"
+          wait_for_boot: true
       - name: Run Unified Tests
         run: |
          HOME="$(xcrun simctl getenv booted HOME)"
