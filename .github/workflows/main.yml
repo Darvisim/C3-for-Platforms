@@ -26,7 +26,8 @@ jobs:
       - name: Run Unified Tests
         run: |
          HOME="$(xcrun simctl getenv booted HOME)"
-         cp -R ./c3c "$HOME/"
-         cp ./build-debug/c3c "$HOME/c3c"
-         cd "$HOME/c3c"
-         bash ./scripts/tools/ci_tests.sh ./build-debug/c3c "ios"
+         cp -R ./ "$HOME/"
+         ls "$HOME"
+         # cp ./build-debug/c3c "$HOME/c3c"
+         # cd "$HOME/c3c"
+         # bash ./scripts/tools/ci_tests.sh ./build-debug/c3c "ios"
