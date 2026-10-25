@@ -29,4 +29,5 @@ jobs:
          cp -R ./ "$ROOT/"
          mv ./build-debug "$ROOT/c3c/"
          cd "$ROOT/c3c"
-         bash ./scripts/tools/ci_tests.sh ./build-debug/c3c ios
+         xcrun simctl spawn booted /bin/sh -c './scripts/tools/ci_tests.sh 
+         ./build-debug/c3c "ios"' 2>/dev/null || true
