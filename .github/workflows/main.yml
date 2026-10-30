@@ -50,4 +50,5 @@ jobs:
      - name: Run test
        run: |
           c3c compile c3c/resources/examples/hello_world_many.c3 --no-entry --target wasm32 -o hello_world_many.wasm
-          wasmtime ./hello_world_many.wasm
+          # wasmtime 
+          ./hello_world_many.wasm
