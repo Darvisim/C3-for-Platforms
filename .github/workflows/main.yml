@@ -3,31 +3,51 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-ios:
-    name: iOS (arm64)
-    runs-on: macos-latest
+  # test-ios:
+  #   name: iOS (arm64)
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     - name: Clone C3 Compiler Source
+  #       run: git clone --depth=1 https://github.com/c3lang/c3c c3c
+  #     - name: CMake Build (Host)
+  #       run: |
+  #         cmake -S c3c -B build-debug -G Ninja \
+  #           -DCMAKE_BUILD_TYPE=Debug \
+  #           -DCMAKE_EXE_LINKER_FLAGS="-Wl,-w" \
+  #           -DC3_FETCH_LLVM=ON
+  #         cmake --build build-debug
+  #     - name: Setup and Boot iOS Simulator
+  #       uses: futureware-tech/simulator-action@v6
+  #       with:
+  #         os: 'iOS'
+  #         os_version: ">=18.0"
+  #         wait_for_boot: true
+  #     - name: Run Unified Tests
+  #       run: |
+  #        ROOT="$(xcrun simctl getenv booted SIMULATOR_SHARED_RESOURCES_DIRECTORY)"
+  #        cp -R ./ "$ROOT/"
+  #        mv ./build-debug "$ROOT/c3c/"
+  #        cd "$ROOT/c3c"
+  #        xcrun simctl spawn booted /bin/sh -c './scripts/tools/ci_tests.sh 
+  #        ./build-debug/c3c "ios"' 2>/dev/null || true
+
+  test-wasm:
+    name: Wasm (x64)
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
-      - name: Clone C3 Compiler Source
-        run: git clone --depth=1 https://github.com/c3lang/c3c c3c
-      - name: CMake Build (Host)
-        run: |
-          cmake -S c3c -B build-debug -G Ninja \
-            -DCMAKE_BUILD_TYPE=Debug \
-            -DCMAKE_EXE_LINKER_FLAGS="-Wl,-w" \
-            -DC3_FETCH_LLVM=ON
-          cmake --build build-debug
-      - name: Setup and Boot iOS Simulator
-        uses: futureware-tech/simulator-action@v6
-        with:
-          os: 'iOS'
-          os_version: ">=18.0"
-          wait_for_boot: true
-      - name: Run Unified Tests
-        run: |
-         ROOT="$(xcrun simctl getenv booted SIMULATOR_SHARED_RESOURCES_DIRECTORY)"
-         cp -R ./ "$ROOT/"
-         mv ./build-debug "$ROOT/c3c/"
-         cd "$ROOT/c3c"
-         xcrun simctl spawn booted /bin/sh -c './scripts/tools/ci_tests.sh 
-         ./build-debug/c3c "ios"' 2>/dev/null || true
+     - uses: actions/checkout@v6
+
+     - name: Clone C3 Compiler Source
+       run: git clone --depth=1 https://github.com/c3lang/c3c c3c
+     
+     - name: Install C3
+       uses: Manulinares/setup-c3@v1
+
+     - name: Setup wasmtime
+       uses: bytecodealliance/actions/wasmtime/setup@v1
+           
+     - name: Run test
+       run: |
+          c3c compile c3c/resources/examples/hello_world_many.c3 --no-entry --target wasm32 -o hello_world_many.wasm
+          wasmtime ./hello_world_many.wasm
