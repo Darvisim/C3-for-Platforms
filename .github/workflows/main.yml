@@ -32,8 +32,8 @@ jobs:
       #    ./scripts/tools/ci_tests.sh ./build-debug/c3c "ios"
       - name: Run Physical Device Test
         run: |
-          ./build-debug/c3c compile-run c3c/resources/examples/hello_world_many.c3 -vv --target ios-aarch64 -o helloworld
-          ./helloworld > test.log 2>/dev/null || true
+          ./build-debug/c3c compile-run c3c/resources/examples/hello_world_many.c3 \
+            -vv --target ios-aarch64 -o helloworld > test.log 2>/dev/null || true
           cat test.log
 
   # test-wasm:
