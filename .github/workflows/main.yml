@@ -28,9 +28,8 @@ jobs:
          HOME="$(xcrun simctl getenv booted HOME)"
          cp -R . "$HOME"
          cd "$HOME/c3c"
-         ls
-         # chmod +x ./scripts/tools/ci_tests.sh
-         # ./scripts/tools/ci_tests.sh ./build-debug/c3c "ios"
+         chmod +x ./scripts/tools/ci_tests.sh
+         ./scripts/tools/ci_tests.sh ./build-debug/c3c "ios"
 
   # test-wasm:
   #   name: Wasm (x64)
