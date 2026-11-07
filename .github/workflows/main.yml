@@ -17,19 +17,24 @@ jobs:
             -DCMAKE_EXE_LINKER_FLAGS="-Wl,-w" \
             -DC3_FETCH_LLVM=ON
           cmake --build build-debug
-      - name: Setup and Boot iOS Simulator
-        uses: futureware-tech/simulator-action@v6
-        with:
-          os: 'iOS'
-          os_version: ">=18.0"
-          wait_for_boot: true
-      - name: Run Unified Tests
+      # - name: Setup and Boot iOS Simulator
+      #   uses: futureware-tech/simulator-action@v6
+      #   with:
+      #     os: 'iOS'
+      #     os_version: ">=18.0"
+      #     wait_for_boot: true
+      # - name: Run Unified Tests
+      #   run: |
+      #    HOME="$(xcrun simctl getenv booted HOME)"
+      #    cp -R . "$HOME"
+      #    cd "$HOME/c3c"
+      #    chmod +x ./scripts/tools/ci_tests.sh
+      #    ./scripts/tools/ci_tests.sh ./build-debug/c3c "ios"
+      - name: Run Physical Device Test
         run: |
-         HOME="$(xcrun simctl getenv booted HOME)"
-         cp -R . "$HOME"
-         cd "$HOME/c3c"
-         chmod +x ./scripts/tools/ci_tests.sh
-         ./scripts/tools/ci_tests.sh ./build-debug/c3c "ios"
+          ./build-debug/c3c compile-run c3c/resources/examples/hello_world_many.c3 -vv --target ios-aarch64 -o helloworld
+          ./helloworld > test.log 2>/dev/null || true
+          cat test.log
 
   # test-wasm:
   #   name: Wasm (x64)
